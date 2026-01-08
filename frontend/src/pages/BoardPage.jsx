@@ -1,6 +1,6 @@
 import React from 'react';
-import Board from '../Board/Board';
-import { mockBoards } from '../../data/mockData';
+import Board from '../components/Board/Board';
+import { mockBoards } from '../data/mockData';
 
 const BoardPage = () => {
   const board = mockBoards[0];
