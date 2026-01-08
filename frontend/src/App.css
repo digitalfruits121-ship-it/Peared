@@ -1,4 +1,4 @@
-/* SyncBoard - Fizzy-style Kanban App */
+/* Pears 🍐 - Paired is for production, performance, partnership */
 
 /* Remove default centering that breaks layout */
 .App {
@@ -17,12 +17,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #8BC34A;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #7CB342;
 }
 
 /* Card hover effects */
@@ -32,7 +32,7 @@
 
 .card-hover-effect:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(139, 195, 74, 0.15);
 }
 
 /* Drag and drop states */
@@ -42,8 +42,8 @@
 }
 
 .drop-target {
-  background-color: rgba(13, 148, 136, 0.1);
-  border: 2px dashed #0d9488;
+  background-color: rgba(139, 195, 74, 0.1);
+  border: 2px dashed #8BC34A;
 }
 
 /* Column animations */
@@ -88,9 +88,26 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
-/* AI card indicator glow */
+/* AI card indicator glow - purple for AI */
 .ai-card-glow {
-  box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.3), 0 0 10px rgba(147, 51, 234, 0.1);
+  box-shadow: 0 0 0 1px rgba(156, 39, 176, 0.3), 0 0 10px rgba(156, 39, 176, 0.1);
+}
+
+/* Pear bounce animation */
+@keyframes pearBounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-3px) rotate(5deg);
+  }
+}
+
+.pear-bounce:hover {
+  animation: pearBounce 0.5s ease-in-out;
 }
 
 /* Tag badge transitions */
@@ -107,12 +124,12 @@ button, input, select, textarea {
   transition: all 0.15s ease;
 }
 
-/* Focus states */
+/* Focus states - pear green */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #0d9488;
+  outline: 2px solid #8BC34A;
   outline-offset: 2px;
 }
 
@@ -121,9 +138,9 @@ textarea:focus-visible {
   backdrop-filter: blur(4px);
 }
 
-/* Gradient backgrounds */
+/* Gradient backgrounds - pear themed */
 .gradient-bg-soft {
-  background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 50%, #f3e8ff 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #F1F8E9 50%, #DCEDC8 100%);
 }
 
 /* Loading skeleton animation */
@@ -150,7 +167,7 @@ textarea:focus-visible {
   min-width: 18px;
   height: 18px;
   border-radius: 9px;
-  background: #ef4444;
+  background: #FF9800;
   color: white;
   font-size: 10px;
   font-weight: 600;
@@ -162,17 +179,17 @@ textarea:focus-visible {
 
 /* Version conflict indicator */
 .version-conflict {
-  border-left: 4px solid #f59e0b;
-  background-color: #fffbeb;
+  border-left: 4px solid #FF9800;
+  background-color: #FFF8E1;
 }
 
-/* Source indicator colors */
+/* Source indicator colors - Human (pear green) vs AI (purple) */
 .source-human {
-  border-left: 4px solid #0d9488;
+  border-left: 4px solid #8BC34A;
 }
 
 .source-ai {
-  border-left: 4px solid #9333ea;
+  border-left: 4px solid #9C27B0;
 }
 
 /* Responsive adjustments */
