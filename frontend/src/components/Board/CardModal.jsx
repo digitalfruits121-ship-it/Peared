@@ -18,8 +18,16 @@ import {
   SelectValue,
 } from '../ui/select';
 import { ScrollArea } from '../ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from '../ui/dropdown-menu';
 import { mockUsers, mockTags, mockColumns, getUserById, getTagById, formatRelativeTime } from '../../data/mockData';
-import { X, Trash2, Bot, User, Clock, MessageSquare, Tag, Users, Columns, History } from 'lucide-react';
+import { X, Trash2, Bot, User, Clock, MessageSquare, Tag, Users, Columns, History, Zap, ChevronDown } from 'lucide-react';
 
 const tagColors = {
   teal: 'bg-neon-500 text-black',
@@ -40,10 +48,12 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
   const [selectedTags, setSelectedTags] = useState(card.tags);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(card.comments || []);
+  const [source, setSource] = useState(card.source || 'human');
 
   const creator = getUserById(card.creatorId);
   const lastModifier = getUserById(card.lastModifiedBy);
-  const isAICard = card.source === 'ai';
+  const isAICard = source === 'ai';
+  const aiAgents = mockUsers.filter(user => user.isAI);
 
   const handleSave = () => {
     onUpdate({
@@ -54,8 +64,24 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
       assigneeId: assigneeId || null,
       tags: selectedTags,
       comments,
+      source,
       lastModifiedBy: 'user-1',
     });
+  };
+
+  const handleAssignToAI = (agentId) => {
+    setSource('ai');
+    setAssigneeId(agentId);
+    // Add AI: TASKS tag if not present
+    if (!selectedTags.includes('tag-2')) {
+      setSelectedTags([...selectedTags.filter(t => t !== 'tag-1'), 'tag-2']);
+    }
+  };
+
+  const handleReturnToHuman = () => {
+    setSource('human');
+    // Remove AI: TASKS tag and add HUMAN: TASKS
+    setSelectedTags([...selectedTags.filter(t => t !== 'tag-2'), 'tag-1']);
   };
 
   const handleAddComment = () => {
@@ -82,16 +108,62 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
     <Dialog open={true} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 bg-gray-900 border-neon-500/30">
         <DialogHeader className="p-4 md:p-6 pb-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs md:text-sm font-mono text-neon-500">#{card.number}</span>
-            {isAICard ? (
-              <Badge className="bg-purple-500/20 text-purple-400 gap-1 text-xs border border-purple-500/30">
-                <Bot className="w-3 h-3" /> AI Task
-              </Badge>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs md:text-sm font-mono text-neon-500">#{card.number}</span>
+              {isAICard ? (
+                <Badge className="bg-purple-500/20 text-purple-400 gap-1 text-xs border border-purple-500/30">
+                  <Bot className="w-3 h-3" /> AI Task
+                </Badge>
+              ) : (
+                <Badge className="bg-neon-500/20 text-neon-400 gap-1 text-xs border border-neon-500/30">
+                  <User className="w-3 h-3" /> Human Task
+                </Badge>
+              )}
+            </div>
+            
+            {/* Assign to AI / Return to Human Button */}
+            {!isAICard ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    size="sm" 
+                    className="gap-1.5 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 border border-purple-500/30"
+                  >
+                    <Bot className="w-3.5 h-3.5" />
+                    Assign to AI
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-gray-900 border-purple-500/30">
+                  <DropdownMenuLabel className="text-purple-400 text-xs">Select AI Agent</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-purple-500/20" />
+                  {aiAgents.map((agent) => (
+                    <DropdownMenuItem 
+                      key={agent.id}
+                      onClick={() => handleAssignToAI(agent.id)}
+                      className="text-gray-300 hover:text-purple-400 hover:bg-purple-500/10 cursor-pointer"
+                    >
+                      <Avatar className="w-5 h-5 mr-2">
+                        <AvatarImage src={agent.avatar} />
+                        <AvatarFallback className="text-[8px] bg-purple-500/20 text-purple-400">
+                          {agent.name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      {agent.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <Badge className="bg-neon-500/20 text-neon-400 gap-1 text-xs border border-neon-500/30">
-                <User className="w-3 h-3" /> Human Task
-              </Badge>
+              <Button 
+                size="sm" 
+                onClick={handleReturnToHuman}
+                className="gap-1.5 bg-neon-500/20 text-neon-400 hover:bg-neon-500/30 border border-neon-500/30"
+              >
+                <User className="w-3.5 h-3.5" />
+                Return to Human
+              </Button>
             )}
           </div>
           <DialogTitle className="text-left mt-2">
@@ -107,6 +179,19 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pb-4">
             {/* Main Content */}
             <div className="md:col-span-2 space-y-4 md:space-y-6">
+              {/* AI Assignment Notice */}
+              {isAICard && (
+                <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+                  <div className="flex items-center gap-2 text-purple-400 text-sm">
+                    <Zap className="w-4 h-4" />
+                    <span className="font-medium">Assigned to AI</span>
+                  </div>
+                  <p className="text-xs text-purple-300/70 mt-1">
+                    This task will appear in the AI Vibe Board queue and be processed by {getUserById(assigneeId)?.name || 'an AI agent'}.
+                  </p>
+                </div>
+              )}
+
               {/* Description */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 block">Description</label>
