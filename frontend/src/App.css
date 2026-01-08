@@ -1,34 +1,203 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* SyncBoard - Fizzy-style Kanban App */
+
+/* Remove default centering that breaks layout */
+.App {
+  min-height: 100vh;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Card hover effects */
+.card-hover-effect {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Drag and drop states */
+.dragging {
+  opacity: 0.5;
+  transform: rotate(3deg);
+}
+
+.drop-target {
+  background-color: rgba(13, 148, 136, 0.1);
+  border: 2px dashed #0d9488;
+}
+
+/* Column animations */
+.column-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.column-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease;
+}
+
+/* Card animations */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-new {
+  animation: cardSlideIn 0.3s ease;
+}
+
+/* Pulse animation for sync indicator */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.sync-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* AI card indicator glow */
+.ai-card-glow {
+  box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.3), 0 0 10px rgba(147, 51, 234, 0.1);
+}
+
+/* Tag badge transitions */
+.tag-badge {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.tag-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Smooth transitions for interactive elements */
+button, input, select, textarea {
+  transition: all 0.15s ease;
+}
+
+/* Focus states */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 2px;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
+}
+
+/* Gradient backgrounds */
+.gradient-bg-soft {
+  background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 50%, #f3e8ff 100%);
+}
+
+/* Loading skeleton animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Notification badge */
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* Version conflict indicator */
+.version-conflict {
+  border-left: 4px solid #f59e0b;
+  background-color: #fffbeb;
+}
+
+/* Source indicator colors */
+.source-human {
+  border-left: 4px solid #0d9488;
+}
+
+.source-ai {
+  border-left: 4px solid #9333ea;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .board-columns {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+  }
+  
+  .column {
+    min-width: 100%;
+    max-width: 100%;
+  }
 }
 
-.App-link {
-    color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .board-columns {
+    flex-wrap: wrap;
+  }
+  
+  .column {
+    page-break-inside: avoid;
+  }
 }
