@@ -6,20 +6,24 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import AISettings from './AISettings';
-import { User, Bot, Bell, Palette, Shield, Database } from 'lucide-react';
+import FileSettings from './FileSettings';
+import { User, Bot, Bell, FolderOpen, Database } from 'lucide-react';
 
 const SettingsPage = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your board and AI integration settings</p>
+        <p className="text-gray-500 mt-1">Manage your board, AI integration, and file repository settings</p>
       </div>
 
       <Tabs defaultValue="ai" className="space-y-6">
         <TabsList className="bg-gray-100 p-1">
           <TabsTrigger value="ai" className="gap-2">
             <Bot className="w-4 h-4" /> AI Integration
+          </TabsTrigger>
+          <TabsTrigger value="files" className="gap-2">
+            <FolderOpen className="w-4 h-4" /> File Repository
           </TabsTrigger>
           <TabsTrigger value="board" className="gap-2">
             <Database className="w-4 h-4" /> Board Settings
@@ -34,6 +38,10 @@ const SettingsPage = () => {
 
         <TabsContent value="ai">
           <AISettings />
+        </TabsContent>
+
+        <TabsContent value="files">
+          <FileSettings />
         </TabsContent>
 
         <TabsContent value="board">
@@ -104,6 +112,13 @@ const SettingsPage = () => {
                 <div>
                   <Label>Sync conflicts</Label>
                   <p className="text-sm text-gray-500">When a version conflict is detected</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>File updates</Label>
+                  <p className="text-sm text-gray-500">When files are created or modified</p>
                 </div>
                 <Switch defaultChecked />
               </div>
