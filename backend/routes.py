@@ -12,6 +12,7 @@ from models import (
     ExecutionStatus, LogType, CardSource,
     AIClaimTaskRequest, AIUpdateStatusRequest, AIAddLogRequest,
     SyncPollResponse, ConflictResolveRequest,
+    File, FileCreate, FileUpdate, FileType, FileScope, FileSettings,
     generate_uuid
 )
 from motor.motor_asyncio import AsyncIOMotorClient
