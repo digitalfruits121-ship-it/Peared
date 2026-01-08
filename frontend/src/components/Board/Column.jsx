@@ -43,7 +43,7 @@ const Column = ({
 
   return (
     <div
-      className="flex flex-col bg-gray-50/80 rounded-xl min-w-[300px] max-w-[300px] h-fit max-h-[calc(100vh-200px)]"
+      className="flex flex-col bg-gray-50/80 rounded-xl min-w-[260px] md:min-w-[300px] max-w-[260px] md:max-w-[300px] h-fit max-h-[calc(100vh-220px)] md:max-h-[calc(100vh-200px)] flex-shrink-0"
       onDragOver={(e) => {
         e.preventDefault();
         onDragOver?.(column.id);
@@ -54,19 +54,19 @@ const Column = ({
       }}
     >
       {/* Column Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200/50">
+      <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-gray-200/50">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+          <h2 className="text-xs md:text-sm font-semibold text-gray-700 uppercase tracking-wide">
             {column.name}
           </h2>
-          <span className="bg-gray-200 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">
+          <span className="bg-gray-200 text-gray-600 text-[10px] md:text-xs font-semibold px-1.5 md:px-2 py-0.5 rounded-full">
             {cards.length}
           </span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
-              <MoreHorizontal className="h-4 w-4 text-gray-400" />
+            <Button variant="ghost" size="icon" className="h-6 w-6 md:h-7 md:w-7">
+              <MoreHorizontal className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-400" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -78,10 +78,10 @@ const Column = ({
       </div>
 
       {/* Cards Container */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 overflow-y-auto p-2 md:p-3 space-y-2 md:space-y-3">
         {/* Add Card Button/Form */}
         {isAddingCard ? (
-          <div className="bg-white rounded-lg border border-teal-300 p-3 shadow-sm">
+          <div className="bg-white rounded-lg border border-teal-300 p-2 md:p-3 shadow-sm">
             <textarea
               autoFocus
               value={newCardTitle}
@@ -95,7 +95,7 @@ const Column = ({
               <Button
                 size="sm"
                 onClick={handleAddCard}
-                className="bg-teal-500 hover:bg-teal-600 text-white text-xs"
+                className="bg-teal-500 hover:bg-teal-600 text-white text-xs h-7 md:h-8"
               >
                 Add card
               </Button>
@@ -106,7 +106,7 @@ const Column = ({
                   setIsAddingCard(false);
                   setNewCardTitle('');
                 }}
-                className="text-xs"
+                className="text-xs h-7 md:h-8"
               >
                 Cancel
               </Button>
@@ -115,9 +115,9 @@ const Column = ({
         ) : (
           <button
             onClick={() => setIsAddingCard(true)}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50/50 transition-colors text-sm font-medium"
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50/50 transition-colors text-xs md:text-sm font-medium"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
             Add a card
           </button>
         )}
