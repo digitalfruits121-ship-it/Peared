@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Column from './Column';
 import CardModal from './CardModal';
-import { mockColumns, mockCards, mockUsers, mockTags, getUserById } from '../../data/mockData';
+import { mockColumns, mockUsers, mockTags, getUserById } from '../../data/mockData';
+import { useCards } from '../../contexts/CardsContext';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Plus, Eye, EyeOff, Bot, User, Filter, Search, RefreshCw, X } from 'lucide-react';
@@ -18,7 +19,7 @@ import {
 
 const Board = ({ boardId }) => {
   const [columns, setColumns] = useState(mockColumns);
-  const [cards, setCards] = useState(mockCards);
+  const { cards, addCard, updateCard, deleteCard, moveCard } = useCards();
   const [selectedCard, setSelectedCard] = useState(null);
   const [draggedCard, setDraggedCard] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
@@ -42,7 +43,7 @@ const Board = ({ boardId }) => {
   const handleAddCard = (columnId, title) => {
     const newCard = {
       id: `card-${Date.now()}`,
-      number: Math.max(...cards.map(c => c.number)) + 1,
+      number: Math.max(...cards.map(c => c.number), 0) + 1,
       title,
       description: '',
       columnId,
@@ -56,7 +57,7 @@ const Board = ({ boardId }) => {
       lastModifiedBy: 'user-1',
       source: 'human',
     };
-    setCards([...cards, newCard]);
+    addCard(newCard);
   };
 
   const handleDragStart = (card) => setDraggedCard(card);
@@ -65,27 +66,19 @@ const Board = ({ boardId }) => {
 
   const handleDrop = (columnId) => {
     if (draggedCard && draggedCard.columnId !== columnId) {
-      setCards(cards.map(card => 
-        card.id === draggedCard.id 
-          ? { ...card, columnId, version: card.version + 1, updatedAt: new Date().toISOString(), lastModifiedBy: 'user-1' } 
-          : card
-      ));
+      moveCard(draggedCard.id, columnId);
     }
     setDraggedCard(null);
     setDragOverColumn(null);
   };
 
   const handleUpdateCard = (updatedCard) => {
-    setCards(cards.map(card => 
-      card.id === updatedCard.id 
-        ? { ...updatedCard, version: card.version + 1, updatedAt: new Date().toISOString() } 
-        : card
-    ));
+    updateCard(updatedCard);
     setSelectedCard(null);
   };
 
   const handleDeleteCard = (cardId) => {
-    setCards(cards.filter(card => card.id !== cardId));
+    deleteCard(cardId);
     setSelectedCard(null);
   };
 
