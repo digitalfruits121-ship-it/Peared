@@ -13,33 +13,35 @@ import { Bot, Bell, FolderOpen, Database, Plug, GitBranch } from 'lucide-react';
 
 const SettingsPage = () => {
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your board, AI integration, and file repository settings</p>
+    <div className="max-w-4xl mx-auto p-4 md:p-6">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Settings</h1>
+        <p className="text-sm md:text-base text-gray-500 mt-1">Manage your board, AI integration, and file repository settings</p>
       </div>
 
-      <Tabs defaultValue="ai" className="space-y-6">
-        <TabsList className="bg-gray-100 p-1 flex-wrap">
-          <TabsTrigger value="ai" className="gap-2">
-            <Bot className="w-4 h-4" /> AI Integration
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="gap-2">
-            <Plug className="w-4 h-4" /> Integrations
-          </TabsTrigger>
-          <TabsTrigger value="github" className="gap-2">
-            <GitBranch className="w-4 h-4" /> GitHub
-          </TabsTrigger>
-          <TabsTrigger value="files" className="gap-2">
-            <FolderOpen className="w-4 h-4" /> File Repository
-          </TabsTrigger>
-          <TabsTrigger value="board" className="gap-2">
-            <Database className="w-4 h-4" /> Board
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
-            <Bell className="w-4 h-4" /> Notifications
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="ai" className="space-y-4 md:space-y-6">
+        <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+          <TabsList className="bg-gray-100 p-1 inline-flex min-w-max">
+            <TabsTrigger value="ai" className="gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-3">
+              <Bot className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-3">
+              <Plug className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">Integrations</span>
+            </TabsTrigger>
+            <TabsTrigger value="github" className="gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-3">
+              <GitBranch className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">GitHub</span>
+            </TabsTrigger>
+            <TabsTrigger value="files" className="gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-3">
+              <FolderOpen className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">Files</span>
+            </TabsTrigger>
+            <TabsTrigger value="board" className="gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-3">
+              <Database className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">Board</span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-3">
+              <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden xs:inline">Alerts</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="ai">
           <AISettings />
