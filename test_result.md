@@ -262,13 +262,9 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus:
-    - "Neon AI Green Theme"
-    - "3D Pear Logo Component"
-    - "Editable App Branding Settings"
-    - "Split Board Page"
+  current_focus: []
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
