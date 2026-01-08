@@ -1,0 +1,149 @@
+import React, { useState } from 'react';
+import Card from './Card';
+import { Button } from '../ui/button';
+import { Plus, MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+
+const Column = ({ 
+  column, 
+  cards, 
+  onCardClick, 
+  onAddCard, 
+  onDragStart, 
+  onDragEnd, 
+  onDragOver, 
+  onDrop,
+  draggedCard,
+}) => {
+  const [isAddingCard, setIsAddingCard] = useState(false);
+  const [newCardTitle, setNewCardTitle] = useState('');
+
+  const handleAddCard = () => {
+    if (newCardTitle.trim()) {
+      onAddCard(column.id, newCardTitle.trim());
+      setNewCardTitle('');
+      setIsAddingCard(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAddCard();
+    } else if (e.key === 'Escape') {
+      setIsAddingCard(false);
+      setNewCardTitle('');
+    }
+  };
+
+  return (
+    <div
+      className="flex flex-col bg-gray-50/80 rounded-xl min-w-[300px] max-w-[300px] h-fit max-h-[calc(100vh-200px)]"
+      onDragOver={(e) => {
+        e.preventDefault();
+        onDragOver?.(column.id);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        onDrop?.(column.id);
+      }}
+    >
+      {/* Column Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200/50">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            {column.name}
+          </h2>
+          <span className="bg-gray-200 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">
+            {cards.length}
+          </span>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <MoreHorizontal className="h-4 w-4 text-gray-400" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Sort by date</DropdownMenuItem>
+            <DropdownMenuItem>Sort by priority</DropdownMenuItem>
+            <DropdownMenuItem>Archive all</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Cards Container */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {/* Add Card Button/Form */}
+        {isAddingCard ? (
+          <div className="bg-white rounded-lg border border-teal-300 p-3 shadow-sm">
+            <textarea
+              autoFocus
+              value={newCardTitle}
+              onChange={(e) => setNewCardTitle(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter card title..."
+              className="w-full text-sm resize-none border-0 focus:ring-0 focus:outline-none placeholder:text-gray-400"
+              rows={2}
+            />
+            <div className="flex items-center gap-2 mt-2">
+              <Button
+                size="sm"
+                onClick={handleAddCard}
+                className="bg-teal-500 hover:bg-teal-600 text-white text-xs"
+              >
+                Add card
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setIsAddingCard(false);
+                  setNewCardTitle('');
+                }}
+                className="text-xs"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setIsAddingCard(true)}
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50/50 transition-colors text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Add a card
+          </button>
+        )}
+
+        {/* Card List */}
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = 'move';
+              onDragStart?.(card);
+            }}
+            onDragEnd={() => onDragEnd?.()}
+            className={`transition-opacity ${draggedCard?.id === card.id ? 'opacity-50' : ''}`}
+          >
+            <Card
+              card={card}
+              onClick={onCardClick}
+              isDragging={draggedCard?.id === card.id}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Column;
