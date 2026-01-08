@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Layout/Header";
-import BoardPage from "./pages/BoardPage";
+import SplitBoardPage from "./pages/SplitBoardPage";
 import SettingsPage from "./components/Settings/SettingsPage";
 import { Toaster } from "./components/ui/sonner";
 
@@ -12,7 +12,7 @@ function App() {
       <BrowserRouter>
         <Header />
         <Routes>
-          <Route path="/" element={<BoardPage />} />
+          <Route path="/" element={<SplitBoardPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </BrowserRouter>
