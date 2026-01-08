@@ -583,3 +583,152 @@ async def resolve_conflict(request: ConflictResolveRequest):
         return {"message": "Merged successfully", "version": merged["version"]}
     
     return {"message": "Conflict resolved"}
+
+
+
+# ============== File Routes ==============
+
+@router.get("/files", response_model=List[File])
+async def list_files(
+    scope: Optional[FileScope] = None,
+    card_id: Optional[str] = None,
+    file_type: Optional[FileType] = None
+):
+    """List all files with optional filters"""
+    query = {}
+    if scope:
+        query["scope"] = scope
+    if card_id:
+        query["$or"] = [
+            {"card_id": card_id},
+            {"linked_cards": card_id}
+        ]
+    if file_type:
+        query["type"] = file_type
+    
+    files = await db.files.find(query).to_list(1000)
+    return [File(**f) for f in files]
+
+
+@router.get("/files/{file_id}", response_model=File)
+async def get_file(file_id: str):
+    """Get a specific file"""
+    file = await db.files.find_one({"id": file_id})
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+    return File(**file)
+
+
+@router.post("/files", response_model=File)
+async def create_file(file_data: FileCreate):
+    """Create a new file"""
+    file = File(
+        id=generate_uuid(),
+        name=file_data.name,
+        type=file_data.type,
+        content=file_data.content,
+        scope=file_data.scope,
+        card_id=file_data.card_id,
+        size=len(file_data.content),
+        linked_cards=[file_data.card_id] if file_data.card_id else [],
+        created_by=file_data.created_by,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow()
+    )
+    
+    await db.files.insert_one(file.dict())
+    return file
+
+
+@router.put("/files/{file_id}", response_model=File)
+async def update_file(file_id: str, file_data: FileUpdate, modifier_id: str = Query(...)):
+    """Update a file"""
+    file = await db.files.find_one({"id": file_id})
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    update_dict = {k: v for k, v in file_data.dict().items() if v is not None}
+    if "content" in update_dict:
+        update_dict["size"] = len(update_dict["content"])
+    update_dict["updated_at"] = datetime.utcnow()
+    
+    await db.files.update_one(
+        {"id": file_id},
+        {"$set": update_dict}
+    )
+    
+    updated_file = await db.files.find_one({"id": file_id})
+    return File(**updated_file)
+
+
+@router.delete("/files/{file_id}")
+async def delete_file(file_id: str):
+    """Delete a file"""
+    result = await db.files.delete_one({"id": file_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="File not found")
+    return {"message": "File deleted"}
+
+
+@router.post("/files/{file_id}/link/{card_id}")
+async def link_file_to_card(file_id: str, card_id: str):
+    """Link a file to a card"""
+    file = await db.files.find_one({"id": file_id})
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    card = await db.cards.find_one({"id": card_id})
+    if not card:
+        raise HTTPException(status_code=404, detail="Card not found")
+    
+    if card_id not in file.get("linked_cards", []):
+        await db.files.update_one(
+            {"id": file_id},
+            {"$push": {"linked_cards": card_id}}
+        )
+    
+    return {"message": "File linked to card"}
+
+
+@router.delete("/files/{file_id}/link/{card_id}")
+async def unlink_file_from_card(file_id: str, card_id: str):
+    """Unlink a file from a card"""
+    await db.files.update_one(
+        {"id": file_id},
+        {"$pull": {"linked_cards": card_id}}
+    )
+    return {"message": "File unlinked from card"}
+
+
+@router.get("/cards/{card_id}/files", response_model=List[File])
+async def get_card_files(card_id: str):
+    """Get all files linked to a card"""
+    files = await db.files.find({
+        "$or": [
+            {"card_id": card_id},
+            {"linked_cards": card_id}
+        ]
+    }).to_list(100)
+    return [File(**f) for f in files]
+
+
+# ============== File Settings Routes ==============
+
+@router.get("/settings/files", response_model=FileSettings)
+async def get_file_settings():
+    """Get file repository settings"""
+    settings = await db.settings.find_one({"type": "files"})
+    if not settings:
+        return FileSettings()
+    return FileSettings(**settings)
+
+
+@router.put("/settings/files", response_model=FileSettings)
+async def update_file_settings(settings: FileSettings):
+    """Update file repository settings"""
+    await db.settings.update_one(
+        {"type": "files"},
+        {"$set": {**settings.dict(), "type": "files"}},
+        upsert=True
+    )
+    return settings
