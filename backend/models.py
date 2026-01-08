@@ -323,3 +323,78 @@ class FileSettings(BaseModel):
     ai_write_access: bool = True
     max_file_size_mb: int = 5
     allowed_types: List[FileType] = [FileType.MARKDOWN, FileType.JSON, FileType.IMAGE]
+
+
+# ============== Integration Models ==============
+
+class IntegrationType(str, Enum):
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    GOOGLE = "google"
+    GITHUB = "github"
+    SLACK = "slack"
+    LINEAR = "linear"
+    NOTION = "notion"
+    CUSTOM_MCP = "custom_mcp"
+
+
+class IntegrationStatus(str, Enum):
+    CONNECTED = "connected"
+    DISCONNECTED = "disconnected"
+    PENDING = "pending"
+    ERROR = "error"
+
+
+class IntegrationBase(BaseModel):
+    type: IntegrationType
+    name: str
+    config: dict = {}
+
+
+class IntegrationCreate(IntegrationBase):
+    pass
+
+
+class Integration(IntegrationBase):
+    id: str = Field(default_factory=generate_uuid)
+    status: IntegrationStatus = IntegrationStatus.PENDING
+    last_sync: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        from_attributes = True
+
+
+# ============== GitHub Models ==============
+
+class GitHubConfig(BaseModel):
+    token: str
+    repo: str
+    branch: str = "main"
+    username: Optional[str] = None
+
+
+class GitHubCommitRequest(BaseModel):
+    message: str
+    description: Optional[str] = None
+    files: List[str]
+
+
+class GitHubPushRequest(BaseModel):
+    branch: str
+    force: bool = False
+
+
+class GitHubBranch(BaseModel):
+    name: str
+    is_default: bool = False
+    last_commit: Optional[str] = None
+
+
+class GitHubCommit(BaseModel):
+    id: str
+    message: str
+    author: str
+    date: datetime
+    files_changed: int = 0
+
