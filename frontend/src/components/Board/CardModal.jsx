@@ -188,12 +188,12 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
               <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <Users className="w-4 h-4" /> Assignee
               </label>
-              <Select value={assigneeId} onValueChange={setAssigneeId}>
+              <Select value={assigneeId || 'unassigned'} onValueChange={(val) => setAssigneeId(val === 'unassigned' ? null : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Unassigned" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Unassigned</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {mockUsers.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
                       <span className="flex items-center gap-2">
