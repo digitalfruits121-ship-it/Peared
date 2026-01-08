@@ -268,3 +268,58 @@ class AIAddLogRequest(BaseModel):
     card_id: str
     log_type: LogType
     message: str
+
+
+
+# ============== File Models ==============
+
+class FileType(str, Enum):
+    MARKDOWN = "markdown"
+    JSON = "json"
+    IMAGE = "image"
+    CODE = "code"
+
+
+class FileScope(str, Enum):
+    PROJECT = "project"
+    TASK = "task"
+
+
+class FileBase(BaseModel):
+    name: str
+    type: FileType
+    content: str
+    scope: FileScope = FileScope.PROJECT
+    card_id: Optional[str] = None
+
+
+class FileCreate(FileBase):
+    created_by: str
+
+
+class FileUpdate(BaseModel):
+    name: Optional[str] = None
+    content: Optional[str] = None
+    linked_cards: Optional[List[str]] = None
+
+
+class File(FileBase):
+    id: str = Field(default_factory=generate_uuid)
+    size: int = 0
+    linked_cards: List[str] = []
+    created_by: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        from_attributes = True
+
+
+class FileSettings(BaseModel):
+    enable_file_repo: bool = True
+    allow_ui_editing: bool = True
+    allow_card_linking: bool = True
+    ai_read_access: bool = True
+    ai_write_access: bool = True
+    max_file_size_mb: int = 5
+    allowed_types: List[FileType] = [FileType.MARKDOWN, FileType.JSON, FileType.IMAGE]
