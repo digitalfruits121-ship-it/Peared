@@ -13,6 +13,8 @@ from models import (
     AIClaimTaskRequest, AIUpdateStatusRequest, AIAddLogRequest,
     SyncPollResponse, ConflictResolveRequest,
     File, FileCreate, FileUpdate, FileType, FileScope, FileSettings,
+    Integration, IntegrationCreate, IntegrationType, IntegrationStatus,
+    GitHubConfig, GitHubCommitRequest, GitHubPushRequest, GitHubCommit,
     generate_uuid
 )
 from motor.motor_asyncio import AsyncIOMotorClient
