@@ -204,10 +204,12 @@ const AgentProfile = ({ agent, isActive }) => {
   );
 };
 
-const VibeAIPanel = ({ onCardSelect }) => {
+const VibeAIPanel = ({ onCardSelect, cards = null }) => {
   const [selectedExecution, setSelectedExecution] = useState(mockExecutions[0]);
   
-  const aiTasks = mockCards.filter(card => card.source === 'ai');
+  // Use provided cards or fall back to mockCards
+  const allCards = cards || mockCards;
+  const aiTasks = allCards.filter(card => card.source === 'ai');
   const aiAgents = mockUsers.filter(user => user.isAI);
   const getExecution = (cardId) => mockExecutions.find(e => e.cardId === cardId);
   const activeExecutions = mockExecutions.filter(e => e.status === ExecutionStatus.RUNNING);
