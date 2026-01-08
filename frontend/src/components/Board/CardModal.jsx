@@ -35,7 +35,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
   const [columnId, setColumnId] = useState(card.columnId);
-  const [assigneeId, setAssigneeId] = useState(card.assigneeId || '');
+  const [assigneeId, setAssigneeId] = useState(card.assigneeId);
   const [selectedTags, setSelectedTags] = useState(card.tags);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(card.comments || []);
