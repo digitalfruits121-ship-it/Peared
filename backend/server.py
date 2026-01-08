@@ -79,6 +79,7 @@ async def get_status_checks():
 async def seed_database():
     """Seed the database with initial data"""
     from models import User, Tag, Board, Card, Column, CardSource, generate_uuid
+    from datetime import datetime as dt
     
     # Clear existing data
     await db.users.delete_many({})
