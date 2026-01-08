@@ -19,26 +19,37 @@ const SettingsPage = () => {
       </div>
 
       <Tabs defaultValue="ai" className="space-y-6">
-        <TabsList className="bg-gray-100 p-1">
+        <TabsList className="bg-gray-100 p-1 flex-wrap">
           <TabsTrigger value="ai" className="gap-2">
             <Bot className="w-4 h-4" /> AI Integration
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="gap-2">
+            <Plug className="w-4 h-4" /> Integrations
+          </TabsTrigger>
+          <TabsTrigger value="github" className="gap-2">
+            <GitBranch className="w-4 h-4" /> GitHub
           </TabsTrigger>
           <TabsTrigger value="files" className="gap-2">
             <FolderOpen className="w-4 h-4" /> File Repository
           </TabsTrigger>
           <TabsTrigger value="board" className="gap-2">
-            <Database className="w-4 h-4" /> Board Settings
+            <Database className="w-4 h-4" /> Board
           </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2">
             <Bell className="w-4 h-4" /> Notifications
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="gap-2">
-            <User className="w-4 h-4" /> Profile
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="ai">
           <AISettings />
+        </TabsContent>
+
+        <TabsContent value="integrations">
+          <IntegrationsSettings />
+        </TabsContent>
+
+        <TabsContent value="github">
+          <GitHubSettings />
         </TabsContent>
 
         <TabsContent value="files">
