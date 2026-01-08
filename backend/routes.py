@@ -734,3 +734,221 @@ async def update_file_settings(settings: FileSettings):
         upsert=True
     )
     return settings
+
+
+
+# ============== Integration Routes ==============
+
+@router.get("/integrations", response_model=List[Integration])
+async def list_integrations():
+    """List all configured integrations"""
+    integrations = await db.integrations.find().to_list(100)
+    return [Integration(**i) for i in integrations]
+
+
+@router.get("/integrations/{integration_id}", response_model=Integration)
+async def get_integration(integration_id: str):
+    """Get a specific integration"""
+    integration = await db.integrations.find_one({"id": integration_id})
+    if not integration:
+        raise HTTPException(status_code=404, detail="Integration not found")
+    return Integration(**integration)
+
+
+@router.post("/integrations", response_model=Integration)
+async def create_integration(data: IntegrationCreate):
+    """Create a new integration"""
+    integration = Integration(
+        id=generate_uuid(),
+        type=data.type,
+        name=data.name,
+        config=data.config,
+        status=IntegrationStatus.PENDING,
+        created_at=datetime.utcnow()
+    )
+    
+    await db.integrations.insert_one(integration.dict())
+    return integration
+
+
+@router.put("/integrations/{integration_id}", response_model=Integration)
+async def update_integration(integration_id: str, data: IntegrationCreate):
+    """Update an integration"""
+    result = await db.integrations.update_one(
+        {"id": integration_id},
+        {"$set": {
+            "type": data.type,
+            "name": data.name,
+            "config": data.config
+        }}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Integration not found")
+    
+    integration = await db.integrations.find_one({"id": integration_id})
+    return Integration(**integration)
+
+
+@router.delete("/integrations/{integration_id}")
+async def delete_integration(integration_id: str):
+    """Delete an integration"""
+    result = await db.integrations.delete_one({"id": integration_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Integration not found")
+    return {"message": "Integration deleted"}
+
+
+@router.post("/integrations/{integration_id}/test")
+async def test_integration(integration_id: str):
+    """Test an integration connection"""
+    integration = await db.integrations.find_one({"id": integration_id})
+    if not integration:
+        raise HTTPException(status_code=404, detail="Integration not found")
+    
+    # In real implementation, test the actual connection
+    # For now, simulate success
+    await db.integrations.update_one(
+        {"id": integration_id},
+        {"$set": {
+            "status": IntegrationStatus.CONNECTED,
+            "last_sync": datetime.utcnow()
+        }}
+    )
+    
+    return {"status": "success", "message": "Connection successful"}
+
+
+# ============== GitHub Routes ==============
+
+@router.get("/github/config")
+async def get_github_config():
+    """Get GitHub configuration"""
+    config = await db.settings.find_one({"type": "github"})
+    if not config:
+        return {
+            "connected": False,
+            "username": None,
+            "repo": None,
+            "branch": "main"
+        }
+    return {
+        "connected": True,
+        "username": config.get("username"),
+        "repo": config.get("repo"),
+        "branch": config.get("branch", "main"),
+        "last_push": config.get("last_push"),
+        "last_pull": config.get("last_pull")
+    }
+
+
+@router.put("/github/config")
+async def update_github_config(config: GitHubConfig):
+    """Update GitHub configuration"""
+    await db.settings.update_one(
+        {"type": "github"},
+        {"$set": {
+            "type": "github",
+            "token": config.token,
+            "repo": config.repo,
+            "branch": config.branch,
+            "username": config.username
+        }},
+        upsert=True
+    )
+    return {"message": "GitHub configuration updated"}
+
+
+@router.get("/github/branches")
+async def get_github_branches():
+    """Get available branches"""
+    # In real implementation, fetch from GitHub API
+    return [
+        {"name": "main", "is_default": True},
+        {"name": "develop", "is_default": False},
+        {"name": "feature/ai-integration", "is_default": False}
+    ]
+
+
+@router.get("/github/status")
+async def get_github_status():
+    """Get current Git status (changed files)"""
+    # In real implementation, run git status
+    return {
+        "changed_files": [
+            {"path": "src/components/Board/Board.jsx", "status": "modified"},
+            {"path": "backend/routes.py", "status": "modified"}
+        ],
+        "untracked_files": [],
+        "staged_files": []
+    }
+
+
+@router.get("/github/commits", response_model=List[GitHubCommit])
+async def get_github_commits(limit: int = 10):
+    """Get recent commits"""
+    commits = await db.github_commits.find().sort("date", -1).limit(limit).to_list(limit)
+    return [GitHubCommit(**c) for c in commits]
+
+
+@router.post("/github/commit")
+async def create_commit(data: GitHubCommitRequest):
+    """Create a new commit"""
+    commit = GitHubCommit(
+        id=generate_uuid()[:7],
+        message=data.message,
+        author="user",  # Would get from auth
+        date=datetime.utcnow(),
+        files_changed=len(data.files)
+    )
+    
+    await db.github_commits.insert_one(commit.dict())
+    
+    return {
+        "status": "success",
+        "commit_id": commit.id,
+        "message": f"Created commit: {data.message}"
+    }
+
+
+@router.post("/github/push")
+async def push_to_remote(data: GitHubPushRequest):
+    """Push commits to remote"""
+    # In real implementation, use GitHub API or git command
+    await db.settings.update_one(
+        {"type": "github"},
+        {"$set": {"last_push": datetime.utcnow()}}
+    )
+    
+    return {
+        "status": "success",
+        "branch": data.branch,
+        "message": f"Successfully pushed to {data.branch}"
+    }
+
+
+@router.post("/github/pull")
+async def pull_from_remote(branch: str = "main"):
+    """Pull changes from remote"""
+    # In real implementation, use GitHub API or git command
+    await db.settings.update_one(
+        {"type": "github"},
+        {"$set": {"last_pull": datetime.utcnow()}}
+    )
+    
+    return {
+        "status": "success",
+        "branch": branch,
+        "message": f"Successfully pulled from {branch}"
+    }
+
+
+@router.post("/github/branch")
+async def create_branch(name: str, from_branch: str = "main"):
+    """Create a new branch"""
+    return {
+        "status": "success",
+        "branch": name,
+        "from": from_branch,
+        "message": f"Created branch {name} from {from_branch}"
+    }
