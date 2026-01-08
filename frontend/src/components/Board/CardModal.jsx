@@ -22,7 +22,7 @@ import { mockUsers, mockTags, mockColumns, getUserById, getTagById, formatRelati
 import { X, Trash2, Bot, User, Clock, MessageSquare, Tag, Users, Columns, History } from 'lucide-react';
 
 const tagColors = {
-  teal: 'bg-teal-500 text-white',
+  teal: 'bg-neon-500 text-black',
   purple: 'bg-purple-500 text-white',
   red: 'bg-red-500 text-white',
   blue: 'bg-blue-500 text-white',
@@ -80,16 +80,16 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
 
   return (
     <Dialog open={true} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 bg-gray-900 border-neon-500/30">
         <DialogHeader className="p-4 md:p-6 pb-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs md:text-sm font-mono text-gray-400">#{card.number}</span>
+            <span className="text-xs md:text-sm font-mono text-neon-500">#{card.number}</span>
             {isAICard ? (
-              <Badge className="bg-purple-100 text-purple-700 gap-1 text-xs">
+              <Badge className="bg-purple-500/20 text-purple-400 gap-1 text-xs border border-purple-500/30">
                 <Bot className="w-3 h-3" /> AI Task
               </Badge>
             ) : (
-              <Badge className="bg-teal-100 text-teal-700 gap-1 text-xs">
+              <Badge className="bg-neon-500/20 text-neon-400 gap-1 text-xs border border-neon-500/30">
                 <User className="w-3 h-3" /> Human Task
               </Badge>
             )}
@@ -98,7 +98,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="text-lg md:text-xl font-semibold border-0 px-0 focus-visible:ring-0 h-auto"
+              className="text-lg md:text-xl font-semibold border-0 px-0 focus-visible:ring-0 h-auto bg-transparent text-white"
             />
           </DialogTitle>
         </DialogHeader>
@@ -109,40 +109,40 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
             <div className="md:col-span-2 space-y-4 md:space-y-6">
               {/* Description */}
               <div>
-                <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 block">Description</label>
+                <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 block">Description</label>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Add a description..."
-                  className="min-h-[80px] md:min-h-[120px] text-sm"
+                  className="min-h-[80px] md:min-h-[120px] text-sm bg-gray-800 border-neon-500/30 text-white placeholder:text-gray-500"
                 />
               </div>
 
               {/* Comments */}
               <div>
-                <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <MessageSquare className="w-3.5 h-3.5 md:w-4 md:h-4" /> Comments
                 </label>
                 <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
                   {comments.map((comment) => {
                     const author = getUserById(comment.authorId);
                     return (
-                      <div key={comment.id} className="flex gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
+                      <div key={comment.id} className="flex gap-2 md:gap-3 p-2 md:p-3 bg-gray-800 rounded-lg border border-gray-700">
                         <Avatar className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0">
                           <AvatarImage src={author?.avatar} />
-                          <AvatarFallback className="text-[8px] md:text-xs">
+                          <AvatarFallback className="text-[8px] md:text-xs bg-neon-500/20 text-neon-400">
                             {author?.name?.split(' ').map(n => n[0]).join('') || '?'}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs md:text-sm font-medium">{author?.name || 'Unknown'}</span>
-                            <span className="text-[10px] md:text-xs text-gray-400">
+                            <span className="text-xs md:text-sm font-medium text-white">{author?.name || 'Unknown'}</span>
+                            <span className="text-[10px] md:text-xs text-gray-500">
                               {formatRelativeTime(comment.createdAt)}
                             </span>
-                            {author?.isAI && <Bot className="w-3 h-3 text-purple-500" />}
+                            {author?.isAI && <Bot className="w-3 h-3 text-purple-400" />}
                           </div>
-                          <p className="text-xs md:text-sm text-gray-600 mt-1 break-words">{comment.text}</p>
+                          <p className="text-xs md:text-sm text-gray-300 mt-1 break-words">{comment.text}</p>
                         </div>
                       </div>
                     );
@@ -154,9 +154,9 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Add a comment..."
                     onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-                    className="text-sm"
+                    className="text-sm bg-gray-800 border-neon-500/30 text-white placeholder:text-gray-500"
                   />
-                  <Button onClick={handleAddComment} variant="outline" size="sm">
+                  <Button onClick={handleAddComment} variant="outline" size="sm" className="border-neon-500/30 text-neon-400 hover:bg-neon-500/10">
                     Post
                   </Button>
                 </div>
@@ -167,16 +167,16 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
             <div className="space-y-4 md:space-y-6">
               {/* Status */}
               <div>
-                <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Columns className="w-3.5 h-3.5 md:w-4 md:h-4" /> Status
                 </label>
                 <Select value={columnId} onValueChange={setColumnId}>
-                  <SelectTrigger className="text-sm">
+                  <SelectTrigger className="text-sm bg-gray-800 border-neon-500/30 text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-gray-900 border-neon-500/30">
                     {mockColumns.map((col) => (
-                      <SelectItem key={col.id} value={col.id}>
+                      <SelectItem key={col.id} value={col.id} className="text-gray-300 hover:text-neon-400">
                         {col.name}
                       </SelectItem>
                     ))}
@@ -186,20 +186,20 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
 
               {/* Assignee */}
               <div>
-                <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Users className="w-3.5 h-3.5 md:w-4 md:h-4" /> Assignee
                 </label>
                 <Select value={assigneeId || 'unassigned'} onValueChange={(val) => setAssigneeId(val === 'unassigned' ? null : val)}>
-                  <SelectTrigger className="text-sm">
+                  <SelectTrigger className="text-sm bg-gray-800 border-neon-500/30 text-white">
                     <SelectValue placeholder="Unassigned" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                  <SelectContent className="bg-gray-900 border-neon-500/30">
+                    <SelectItem value="unassigned" className="text-gray-300">Unassigned</SelectItem>
                     {mockUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
+                      <SelectItem key={user.id} value={user.id} className="text-gray-300 hover:text-neon-400">
                         <span className="flex items-center gap-2">
                           {user.name}
-                          {user.isAI && <Bot className="w-3 h-3 text-purple-500" />}
+                          {user.isAI && <Bot className="w-3 h-3 text-purple-400" />}
                         </span>
                       </SelectItem>
                     ))}
@@ -209,7 +209,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
 
               {/* Tags */}
               <div>
-                <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Tag className="w-3.5 h-3.5 md:w-4 md:h-4" /> Tags
                 </label>
                 <div className="flex flex-wrap gap-1.5 md:gap-2">
@@ -226,29 +226,29 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
               </div>
 
               {/* Metadata */}
-              <div className="pt-3 md:pt-4 border-t border-gray-200 space-y-2 md:space-y-3">
-                <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
+              <div className="pt-3 md:pt-4 border-t border-gray-700 space-y-2 md:space-y-3">
+                <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
                   <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span>Created {formatRelativeTime(card.createdAt)}</span>
                 </div>
                 {creator && (
-                  <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
                     <span>by</span>
                     <Avatar className="w-4 h-4 md:w-5 md:h-5">
                       <AvatarImage src={creator.avatar} />
-                      <AvatarFallback className="text-[6px] md:text-[8px]">
+                      <AvatarFallback className="text-[6px] md:text-[8px] bg-neon-500/20 text-neon-400">
                         {creator.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <span className="truncate">{creator.name}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
                   <History className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span>Version {card.version}</span>
                 </div>
                 {lastModifier && (
-                  <div className="text-[10px] md:text-xs text-gray-400">
+                  <div className="text-[10px] md:text-xs text-gray-500">
                     Last modified by {lastModifier.name}
                   </div>
                 )}
@@ -258,20 +258,20 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
         </ScrollArea>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between p-4 md:p-6 pt-4 border-t border-gray-200 bg-white">
+        <div className="flex items-center justify-between p-4 md:p-6 pt-4 border-t border-gray-700 bg-gray-900">
           <Button
             variant="destructive"
             size="sm"
             onClick={() => onDelete(card.id)}
-            className="gap-1 md:gap-2 text-xs md:text-sm"
+            className="gap-1 md:gap-2 text-xs md:text-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30"
           >
             <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" /> Delete
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} size="sm" className="text-xs md:text-sm">
+            <Button variant="outline" onClick={onClose} size="sm" className="text-xs md:text-sm border-gray-600 text-gray-300 hover:bg-gray-800">
               Cancel
             </Button>
-            <Button onClick={handleSave} size="sm" className="bg-teal-500 hover:bg-teal-600 text-xs md:text-sm">
+            <Button onClick={handleSave} size="sm" className="bg-neon-500 hover:bg-neon-600 text-black text-xs md:text-sm">
               Save Changes
             </Button>
           </div>
