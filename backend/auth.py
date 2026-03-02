@@ -13,8 +13,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-please-change-in-prod"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
+import certifi
 mongo_url = os.environ.get("MONGO_URL")
-_client = AsyncIOMotorClient(mongo_url)
+_client = AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
 db = _client[os.environ.get("DB_NAME", "test_database")]
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
