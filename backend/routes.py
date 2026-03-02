@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Optional
 from datetime import datetime
+from auth import get_current_user, get_optional_user
 from models import (
     Board, BoardCreate, BoardUpdate,
     Card, CardCreate, CardUpdate, CardMove,
@@ -26,6 +27,18 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'test_database')]
 
 router = APIRouter(prefix="/api")
+
+
+# ---- Socket.IO emit helper ----
+async def _emit(event: str, data: dict, board_id: str = "board-1"):
+    """Emit a socket.io event to all clients watching a board."""
+    try:
+        import server as _server
+        sio = getattr(_server, "sio", None)
+        if sio:
+            await sio.emit(event, data, room=f"board:{board_id}")
+    except Exception:
+        pass
 
 
 # ============== Helper Functions ==============
@@ -150,15 +163,18 @@ async def get_card(card_id: str):
 
 
 @router.post("/boards/{board_id}/cards", response_model=Card)
-async def create_card(board_id: str, card_data: CardCreate):
+async def create_card(
+    board_id: str,
+    card_data: CardCreate,
+    current_user: User = Depends(get_current_user),
+):
     """Create a new card"""
-    # Verify board exists
     board = await db.boards.find_one({"id": board_id})
     if not board:
         raise HTTPException(status_code=404, detail="Board not found")
-    
+
     card_number = await get_next_card_number(board_id)
-    
+
     card = Card(
         id=generate_uuid(),
         number=card_number,
@@ -168,28 +184,32 @@ async def create_card(board_id: str, card_data: CardCreate):
         column_id=card_data.column_id,
         tags=card_data.tags,
         assignee_id=card_data.assignee_id,
-        creator_id=card_data.creator_id,
+        creator_id=current_user.id,
         source=card_data.source,
         version=1,
-        last_modified_by=card_data.creator_id,
+        last_modified_by=current_user.id,
         comments=[],
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
-    
+
     await db.cards.insert_one(card.dict())
+    await _emit("card:created", card.dict(), board_id)
     return card
 
 
 @router.put("/cards/{card_id}", response_model=Card)
-async def update_card(card_id: str, card_data: CardUpdate, modifier_id: str = Query(...)):
+async def update_card(
+    card_id: str,
+    card_data: CardUpdate,
+    modifier_id: str = Query(None),
+    current_user: User = Depends(get_current_user),
+):
     """Update a card with optimistic locking"""
-    # Get current card
     card = await db.cards.find_one({"id": card_id})
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
-    
-    # Check version for optimistic locking
+
     if card["version"] != card_data.version:
         raise HTTPException(
             status_code=409,
@@ -197,94 +217,102 @@ async def update_card(card_id: str, card_data: CardUpdate, modifier_id: str = Qu
                 "error": "Version conflict",
                 "current_version": card["version"],
                 "your_version": card_data.version,
-                "current_data": card
-            }
+                "current_data": card,
+            },
         )
-    
-    # Build update dict
+
     update_dict = {k: v for k, v in card_data.dict().items() if v is not None and k != "version"}
     update_dict["version"] = card["version"] + 1
-    update_dict["last_modified_by"] = modifier_id
+    update_dict["last_modified_by"] = modifier_id or current_user.id
     update_dict["updated_at"] = datetime.utcnow()
-    
-    await db.cards.update_one(
-        {"id": card_id},
-        {"$set": update_dict}
-    )
-    
+
+    await db.cards.update_one({"id": card_id}, {"$set": update_dict})
+
     updated_card = await db.cards.find_one({"id": card_id})
-    return Card(**updated_card)
+    result = Card(**updated_card)
+    await _emit("card:updated", result.dict(), card.get("board_id", "board-1"))
+    return result
 
 
 @router.patch("/cards/{card_id}/move", response_model=Card)
-async def move_card(card_id: str, move_data: CardMove, modifier_id: str = Query(...)):
+async def move_card(
+    card_id: str,
+    move_data: CardMove,
+    modifier_id: str = Query(None),
+    current_user: User = Depends(get_current_user),
+):
     """Move a card to a different column"""
     card = await db.cards.find_one({"id": card_id})
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
-    
-    # Check version
+
     if card["version"] != move_data.version:
         raise HTTPException(
             status_code=409,
             detail={
                 "error": "Version conflict",
                 "current_version": card["version"],
-                "your_version": move_data.version
-            }
+                "your_version": move_data.version,
+            },
         )
-    
+
     await db.cards.update_one(
         {"id": card_id},
         {"$set": {
             "column_id": move_data.column_id,
             "version": card["version"] + 1,
-            "last_modified_by": modifier_id,
-            "updated_at": datetime.utcnow()
-        }}
+            "last_modified_by": modifier_id or current_user.id,
+            "updated_at": datetime.utcnow(),
+        }},
     )
-    
+
     updated_card = await db.cards.find_one({"id": card_id})
-    return Card(**updated_card)
+    result = Card(**updated_card)
+    await _emit("card:moved", {"cardId": card_id, "columnId": move_data.column_id, "version": result.version}, card.get("board_id", "board-1"))
+    return result
 
 
 @router.delete("/cards/{card_id}")
-async def delete_card(card_id: str):
+async def delete_card(card_id: str, current_user: User = Depends(get_current_user)):
     """Delete a card"""
+    card = await db.cards.find_one({"id": card_id})
     result = await db.cards.delete_one({"id": card_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Card not found")
-    
-    # Delete associated execution
+
     await db.executions.delete_many({"card_id": card_id})
-    
+    if card:
+        await _emit("card:deleted", {"cardId": card_id}, card.get("board_id", "board-1"))
     return {"message": "Card deleted"}
 
 
 @router.post("/cards/{card_id}/comments", response_model=Card)
-async def add_comment(card_id: str, comment_data: CommentCreate):
+async def add_comment(
+    card_id: str,
+    comment_data: CommentCreate,
+    current_user: User = Depends(get_current_user),
+):
     """Add a comment to a card"""
     card = await db.cards.find_one({"id": card_id})
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
-    
+
     comment = Comment(
         id=generate_uuid(),
         text=comment_data.text,
-        author_id=comment_data.author_id,
-        created_at=datetime.utcnow()
+        author_id=comment_data.author_id or current_user.id,
+        created_at=datetime.utcnow(),
     )
-    
+
     await db.cards.update_one(
         {"id": card_id},
-        {
-            "$push": {"comments": comment.dict()},
-            "$set": {"updated_at": datetime.utcnow()}
-        }
+        {"$push": {"comments": comment.dict()}, "$set": {"updated_at": datetime.utcnow()}},
     )
-    
+
     updated_card = await db.cards.find_one({"id": card_id})
-    return Card(**updated_card)
+    result = Card(**updated_card)
+    await _emit("card:updated", result.dict(), card.get("board_id", "board-1"))
+    return result
 
 
 # ============== User Routes ==============

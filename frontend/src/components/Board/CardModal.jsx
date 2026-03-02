@@ -26,7 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '../ui/dropdown-menu';
-import { mockUsers, mockTags, mockColumns, getUserById, getTagById, formatRelativeTime } from '../../data/mockData';
+import { useAuth } from '../../contexts/AuthContext';
 import { X, Trash2, Bot, User, Clock, MessageSquare, Tag, Users, Columns, History, Zap, ChevronDown } from 'lucide-react';
 
 const tagColors = {
@@ -40,7 +40,20 @@ const tagColors = {
   gray: 'bg-gray-500 text-white',
 };
 
-const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
+function formatRelativeTime(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'TODAY';
+  if (diffDays === 1) return 'YESTERDAY';
+  if (diffDays < 7) return `${diffDays} DAYS AGO`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} WEEKS AGO`;
+  return `${Math.floor(diffDays / 30)} MONTHS AGO`;
+}
+
+const CardModal = ({ card, onClose, onUpdate, onDelete, users = [], tags = [], columns = [] }) => {
+  const { currentUser } = useAuth();
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
   const [columnId, setColumnId] = useState(card.columnId);
@@ -50,10 +63,12 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
   const [comments, setComments] = useState(card.comments || []);
   const [source, setSource] = useState(card.source || 'human');
 
+  const getUserById = (id) => users.find((u) => u.id === id);
+
   const creator = getUserById(card.creatorId);
   const lastModifier = getUserById(card.lastModifiedBy);
   const isAICard = source === 'ai';
-  const aiAgents = mockUsers.filter(user => user.isAI);
+  const aiAgents = users.filter((u) => u.isAI);
 
   const handleSave = () => {
     onUpdate({
@@ -65,23 +80,21 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
       tags: selectedTags,
       comments,
       source,
-      lastModifiedBy: 'user-1',
+      lastModifiedBy: currentUser?.id || card.lastModifiedBy,
     });
   };
 
   const handleAssignToAI = (agentId) => {
     setSource('ai');
     setAssigneeId(agentId);
-    // Add AI: TASKS tag if not present
     if (!selectedTags.includes('tag-2')) {
-      setSelectedTags([...selectedTags.filter(t => t !== 'tag-1'), 'tag-2']);
+      setSelectedTags([...selectedTags.filter((t) => t !== 'tag-1'), 'tag-2']);
     }
   };
 
   const handleReturnToHuman = () => {
     setSource('human');
-    // Remove AI: TASKS tag and add HUMAN: TASKS
-    setSelectedTags([...selectedTags.filter(t => t !== 'tag-2'), 'tag-1']);
+    setSelectedTags([...selectedTags.filter((t) => t !== 'tag-2'), 'tag-1']);
   };
 
   const handleAddComment = () => {
@@ -89,7 +102,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
     const comment = {
       id: `comment-${Date.now()}`,
       text: newComment,
-      authorId: 'user-1',
+      authorId: currentUser?.id || 'user-1',
       createdAt: new Date().toISOString(),
     };
     setComments([...comments, comment]);
@@ -98,7 +111,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
 
   const toggleTag = (tagId) => {
     if (selectedTags.includes(tagId)) {
-      setSelectedTags(selectedTags.filter(id => id !== tagId));
+      setSelectedTags(selectedTags.filter((id) => id !== tagId));
     } else {
       setSelectedTags([...selectedTags, tagId]);
     }
@@ -121,13 +134,12 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                 </Badge>
               )}
             </div>
-            
-            {/* Assign to AI / Return to Human Button */}
+
             {!isAICard ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="gap-1.5 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 border border-purple-500/30"
                   >
                     <Bot className="w-3.5 h-3.5" />
@@ -139,7 +151,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                   <DropdownMenuLabel className="text-purple-400 text-xs">Select AI Agent</DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-purple-500/20" />
                   {aiAgents.map((agent) => (
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       key={agent.id}
                       onClick={() => handleAssignToAI(agent.id)}
                       className="text-gray-300 hover:text-purple-400 hover:bg-purple-500/10 cursor-pointer"
@@ -156,8 +168,8 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={handleReturnToHuman}
                 className="gap-1.5 bg-neon-500/20 text-neon-400 hover:bg-neon-500/30 border border-neon-500/30"
               >
@@ -179,7 +191,6 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pb-4">
             {/* Main Content */}
             <div className="md:col-span-2 space-y-4 md:space-y-6">
-              {/* AI Assignment Notice */}
               {isAICard && (
                 <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
                   <div className="flex items-center gap-2 text-purple-400 text-sm">
@@ -187,12 +198,12 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                     <span className="font-medium">Assigned to AI</span>
                   </div>
                   <p className="text-xs text-purple-300/70 mt-1">
-                    This task will appear in the AI Vibe Board queue and be processed by {getUserById(assigneeId)?.name || 'an AI agent'}.
+                    This task will appear in the AI Vibe Board queue and be processed by{' '}
+                    {getUserById(assigneeId)?.name || 'an AI agent'}.
                   </p>
                 </div>
               )}
 
-              {/* Description */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 block">Description</label>
                 <Textarea
@@ -203,7 +214,6 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                 />
               </div>
 
-              {/* Comments */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <MessageSquare className="w-3.5 h-3.5 md:w-4 md:h-4" /> Comments
@@ -216,7 +226,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                         <Avatar className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0">
                           <AvatarImage src={author?.avatar} />
                           <AvatarFallback className="text-[8px] md:text-xs bg-neon-500/20 text-neon-400">
-                            {author?.name?.split(' ').map(n => n[0]).join('') || '?'}
+                            {author?.name?.split(' ').map((n) => n[0]).join('') || '?'}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
@@ -250,7 +260,6 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
 
             {/* Sidebar */}
             <div className="space-y-4 md:space-y-6">
-              {/* Status */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Columns className="w-3.5 h-3.5 md:w-4 md:h-4" /> Status
@@ -260,7 +269,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-neon-500/30">
-                    {mockColumns.map((col) => (
+                    {columns.map((col) => (
                       <SelectItem key={col.id} value={col.id} className="text-gray-300 hover:text-neon-400">
                         {col.name}
                       </SelectItem>
@@ -269,7 +278,6 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                 </Select>
               </div>
 
-              {/* Assignee */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Users className="w-3.5 h-3.5 md:w-4 md:h-4" /> Assignee
@@ -280,7 +288,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-neon-500/30">
                     <SelectItem value="unassigned" className="text-gray-300">Unassigned</SelectItem>
-                    {mockUsers.map((user) => (
+                    {users.map((user) => (
                       <SelectItem key={user.id} value={user.id} className="text-gray-300 hover:text-neon-400">
                         <span className="flex items-center gap-2">
                           {user.name}
@@ -292,13 +300,12 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                 </Select>
               </div>
 
-              {/* Tags */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Tag className="w-3.5 h-3.5 md:w-4 md:h-4" /> Tags
                 </label>
                 <div className="flex flex-wrap gap-1.5 md:gap-2">
-                  {mockTags.map((tag) => (
+                  {tags.map((tag) => (
                     <Badge
                       key={tag.id}
                       className={`cursor-pointer transition-opacity text-[10px] md:text-xs ${tagColors[tag.color]} ${selectedTags.includes(tag.id) ? 'opacity-100' : 'opacity-40'}`}
@@ -310,7 +317,6 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                 </div>
               </div>
 
-              {/* Metadata */}
               <div className="pt-3 md:pt-4 border-t border-gray-700 space-y-2 md:space-y-3">
                 <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
                   <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -322,7 +328,7 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
                     <Avatar className="w-4 h-4 md:w-5 md:h-5">
                       <AvatarImage src={creator.avatar} />
                       <AvatarFallback className="text-[6px] md:text-[8px] bg-neon-500/20 text-neon-400">
-                        {creator.name.split(' ').map(n => n[0]).join('')}
+                        {creator.name.split(' ').map((n) => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <span className="truncate">{creator.name}</span>
@@ -342,7 +348,6 @@ const CardModal = ({ card, onClose, onUpdate, onDelete }) => {
           </div>
         </ScrollArea>
 
-        {/* Footer Actions */}
         <div className="flex items-center justify-between p-4 md:p-6 pt-4 border-t border-gray-700 bg-gray-900">
           <Button
             variant="destructive"

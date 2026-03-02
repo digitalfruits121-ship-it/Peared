@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Column from './Column';
 import CardModal from './CardModal';
-import { mockColumns, mockUsers, mockTags, getUserById } from '../../data/mockData';
+import { boardApi, userApi, tagApi } from '../../services/api';
 import { useCards } from '../../contexts/CardsContext';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Plus, Eye, EyeOff, Bot, User, Filter, Search, RefreshCw, X } from 'lucide-react';
+import { Plus, Bot, User, Filter, Search, RefreshCw, X } from 'lucide-react';
 import { Input } from '../ui/input';
 import {
   DropdownMenu,
@@ -17,47 +17,38 @@ import {
   DropdownMenuLabel,
 } from '../ui/dropdown-menu';
 
-const Board = ({ boardId }) => {
-  const [columns, setColumns] = useState(mockColumns);
+const Board = ({ boardId = 'board-1' }) => {
+  const [columns, setColumns] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [tags, setTags] = useState([]);
   const { cards, addCard, updateCard, deleteCard, moveCard } = useCards();
   const [selectedCard, setSelectedCard] = useState(null);
   const [draggedCard, setDraggedCard] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSource, setFilterSource] = useState('all');
-  const [isPolling, setIsPolling] = useState(true);
   const [lastSync, setLastSync] = useState(new Date());
   const [showSearch, setShowSearch] = useState(false);
 
+  // Load board metadata (columns, users, tags) from API
   useEffect(() => {
-    if (!isPolling) return;
-    const interval = setInterval(() => {
-      setLastSync(new Date());
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isPolling]);
+    boardApi.get(boardId)
+      .then((board) => setColumns(board.columns.sort((a, b) => a.order - b.order)))
+      .catch(() => {});
+    userApi.list().then(setUsers).catch(() => {});
+    tagApi.list().then(setTags).catch(() => {});
+  }, [boardId]);
+
+  // Track last sync time from cards context
+  useEffect(() => {
+    setLastSync(new Date());
+  }, [cards]);
 
   const handleCardClick = (card) => setSelectedCard(card);
   const handleCloseModal = () => setSelectedCard(null);
 
   const handleAddCard = (columnId, title) => {
-    const newCard = {
-      id: `card-${Date.now()}`,
-      number: Math.max(...cards.map(c => c.number), 0) + 1,
-      title,
-      description: '',
-      columnId,
-      tags: ['tag-1'],
-      assigneeId: null,
-      creatorId: 'user-1',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      comments: [],
-      version: 1,
-      lastModifiedBy: 'user-1',
-      source: 'human',
-    };
-    addCard(newCard);
+    addCard({ columnId, title });
   };
 
   const handleDragStart = (card) => setDraggedCard(card);
@@ -89,7 +80,7 @@ const Board = ({ boardId }) => {
   });
 
   const getCardsByColumn = (columnId) => filteredCards.filter(card => card.columnId === columnId);
-  const watchers = mockUsers.slice(0, 5);
+  const watchers = users.filter((u) => !u.isAI).slice(0, 5);
 
   return (
     <div className="h-full flex flex-col bg-gray-950">
@@ -147,16 +138,8 @@ const Board = ({ boardId }) => {
         <div className="flex items-center gap-2 md:gap-4">
           {/* Sync Status */}
           <div className="hidden md:flex items-center gap-2 text-xs md:text-sm text-neon-500/70">
-            <RefreshCw className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isPolling ? 'animate-spin' : ''}`} />
+            <RefreshCw className="w-3.5 h-3.5 md:w-4 md:h-4" />
             <span className="hidden lg:inline">Synced: {lastSync.toLocaleTimeString()}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsPolling(!isPolling)}
-              className={`h-7 w-7 p-0 ${isPolling ? 'text-neon-500' : 'text-gray-500'}`}
-            >
-              {isPolling ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-            </Button>
           </div>
 
           {/* Watchers */}
@@ -226,7 +209,15 @@ const Board = ({ boardId }) => {
 
       {/* Card Modal */}
       {selectedCard && (
-        <CardModal card={selectedCard} onClose={handleCloseModal} onUpdate={handleUpdateCard} onDelete={handleDeleteCard} />
+        <CardModal
+          card={selectedCard}
+          onClose={handleCloseModal}
+          onUpdate={handleUpdateCard}
+          onDelete={handleDeleteCard}
+          users={users}
+          tags={tags}
+          columns={columns}
+        />
       )}
     </div>
   );

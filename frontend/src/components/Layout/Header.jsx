@@ -19,17 +19,13 @@ import {
 import { Settings, LogOut, Bot, Menu, LayoutDashboard } from 'lucide-react';
 import PearLogo from './PearLogo';
 import { useAppSettings } from '../../contexts/AppSettingsContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { settings } = useAppSettings();
-  
-  const currentUser = {
-    name: 'Michael B.',
-    email: 'michael@example.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
-  };
+  const { currentUser, logout } = useAuth();
 
   const renderLogo = (size = 32) => {
     switch (settings.logoType) {
@@ -122,9 +118,9 @@ const Header = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 md:h-9 md:w-9 rounded-full hover:bg-neon-500/10">
               <Avatar className="h-8 w-8 md:h-9 md:w-9 ring-2 ring-neon-500/50">
-                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                <AvatarImage src={currentUser?.avatar} alt={currentUser?.name} />
                 <AvatarFallback className="bg-neon-500/20 text-neon-400">
-                  {currentUser.name.split(' ').map(n => n[0]).join('')}
+                  {currentUser?.name?.split(' ').map(n => n[0]).join('') || '?'}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -132,12 +128,12 @@ const Header = () => {
           <DropdownMenuContent align="end" className="w-56 bg-gray-900 border-neon-500/20">
             <div className="flex items-center gap-2 p-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={currentUser.avatar} />
-                <AvatarFallback>{currentUser.name[0]}</AvatarFallback>
+                <AvatarImage src={currentUser?.avatar} />
+                <AvatarFallback>{currentUser?.name?.[0] || '?'}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-white">{currentUser.name}</span>
-                <span className="text-xs text-gray-400">{currentUser.email}</span>
+                <span className="text-sm font-medium text-white">{currentUser?.name}</span>
+                <span className="text-xs text-gray-400">{currentUser?.email}</span>
               </div>
             </div>
             <DropdownMenuSeparator className="bg-neon-500/20" />
@@ -152,7 +148,7 @@ const Header = () => {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-neon-500/20" />
-            <DropdownMenuItem className="text-red-400 cursor-pointer hover:bg-red-500/10">
+            <DropdownMenuItem onClick={logout} className="text-red-400 cursor-pointer hover:bg-red-500/10">
               <LogOut className="w-4 h-4 mr-2" /> Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
