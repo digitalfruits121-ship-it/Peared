@@ -30,11 +30,11 @@ const ExecutionStatus = {
 };
 
 const statusConfig = {
-  [ExecutionStatus.IDLE]: { color: 'bg-gray-100 text-gray-700', icon: Clock, label: 'Idle' },
-  [ExecutionStatus.RUNNING]: { color: 'bg-blue-100 text-blue-700', icon: Loader2, label: 'Running', animate: true },
-  [ExecutionStatus.COMPLETED]: { color: 'bg-green-100 text-green-700', icon: CheckCircle, label: 'Completed' },
-  [ExecutionStatus.FAILED]: { color: 'bg-red-100 text-red-700', icon: XCircle, label: 'Failed' },
-  [ExecutionStatus.PAUSED]: { color: 'bg-yellow-100 text-yellow-700', icon: Pause, label: 'Paused' },
+  [ExecutionStatus.IDLE]: { color: 'bg-gray-700 text-gray-300', icon: Clock, label: 'Idle' },
+  [ExecutionStatus.RUNNING]: { color: 'bg-blue-500/20 text-blue-400 border border-blue-500/30', icon: Loader2, label: 'Running', animate: true },
+  [ExecutionStatus.COMPLETED]: { color: 'bg-neon-500/20 text-neon-400 border border-neon-500/30', icon: CheckCircle, label: 'Completed' },
+  [ExecutionStatus.FAILED]: { color: 'bg-red-500/20 text-red-400 border border-red-500/30', icon: XCircle, label: 'Failed' },
+  [ExecutionStatus.PAUSED]: { color: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30', icon: Pause, label: 'Paused' },
 };
 
 const mockExecutions = [
@@ -101,24 +101,24 @@ const AITaskCard = ({ card, execution, isSelected, onClick }) => {
       onClick={onClick}
       className={`
         p-2 md:p-3 rounded-lg border cursor-pointer transition-all
-        ${isSelected ? 'border-purple-400 bg-purple-50/50 shadow-sm' : 'border-gray-200 bg-white hover:border-purple-200'}
+        ${isSelected ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-purple-500/50'}
       `}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 md:gap-2 mb-1 flex-wrap">
-            <span className="text-[10px] md:text-xs font-mono text-gray-400">#{card.number}</span>
+            <span className="text-[10px] md:text-xs font-mono text-gray-500">#{card.number}</span>
             <Badge className={`${config.color} text-[8px] md:text-[10px] gap-1 px-1.5`}>
               <StatusIcon className={`w-2.5 h-2.5 md:w-3 md:h-3 ${config.animate ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{config.label}</span>
             </Badge>
           </div>
-          <h4 className="text-xs md:text-sm font-medium text-gray-900 line-clamp-2">{card.title}</h4>
+          <h4 className="text-xs md:text-sm font-medium text-white line-clamp-2">{card.title}</h4>
         </div>
         {agent && (
-          <Avatar className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0">
+          <Avatar className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 ring-1 ring-purple-500/30">
             <AvatarImage src={agent.avatar} />
-            <AvatarFallback className="text-[6px] md:text-[8px] bg-purple-100">
+            <AvatarFallback className="text-[6px] md:text-[8px] bg-purple-500/20 text-purple-400">
               {agent.name[0]}
             </AvatarFallback>
           </Avatar>
@@ -126,16 +126,16 @@ const AITaskCard = ({ card, execution, isSelected, onClick }) => {
       </div>
       {execution && status === ExecutionStatus.RUNNING && (
         <div className="mt-2">
-          <div className="flex items-center justify-between text-[10px] md:text-xs text-gray-500 mb-1">
+          <div className="flex items-center justify-between text-[10px] md:text-xs text-gray-400 mb-1">
             <span>Progress</span>
-            <span>{execution.progress}%</span>
+            <span className="text-neon-400">{execution.progress}%</span>
           </div>
-          <Progress value={execution.progress} className="h-1 md:h-1.5" />
+          <Progress value={execution.progress} className="h-1 md:h-1.5 bg-gray-700" />
         </div>
       )}
       {execution?.branch && (
         <div className="mt-2 flex items-center gap-1 text-[10px] md:text-xs text-gray-500">
-          <GitBranch className="w-2.5 h-2.5 md:w-3 md:h-3" />
+          <GitBranch className="w-2.5 h-2.5 md:w-3 md:h-3 text-purple-400" />
           <span className="truncate">{execution.branch}</span>
         </div>
       )}
@@ -148,23 +148,23 @@ const ExecutionLogs = ({ execution }) => {
 
   const logTypeColors = {
     info: 'text-blue-400',
-    success: 'text-green-400',
+    success: 'text-neon-400',
     error: 'text-red-400',
     warning: 'text-yellow-400',
   };
 
   return (
-    <div className="bg-gray-900 rounded-lg p-2 md:p-3 font-mono text-[10px] md:text-xs">
+    <div className="bg-gray-950 rounded-lg p-2 md:p-3 font-mono text-[10px] md:text-xs border border-gray-800">
       <div className="flex items-center gap-2 mb-2 text-gray-400">
-        <Terminal className="w-3 h-3 md:w-4 md:h-4" />
+        <Terminal className="w-3 h-3 md:w-4 md:h-4 text-neon-500" />
         <span>Execution Logs</span>
       </div>
       <ScrollArea className="h-24 md:h-32">
         <div className="space-y-1">
           {execution.logs.map((log, idx) => (
             <div key={idx} className="flex gap-2">
-              <span className="text-gray-500 flex-shrink-0">{log.time}</span>
-              <span className={`${logTypeColors[log.type] || 'text-gray-300'} break-all`}>
+              <span className="text-gray-600 flex-shrink-0">{log.time}</span>
+              <span className={`${logTypeColors[log.type] || 'text-gray-400'} break-all`}>
                 {log.message}
               </span>
             </div>
@@ -181,33 +181,35 @@ const AgentProfile = ({ agent, isActive }) => {
   return (
     <div className={`
       flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg border transition-all
-      ${isActive ? 'border-purple-300 bg-purple-50' : 'border-gray-200 bg-gray-50'}
+      ${isActive ? 'border-purple-500/50 bg-purple-500/10' : 'border-gray-700 bg-gray-800/50'}
     `}>
       <div className="relative">
-        <Avatar className="w-8 h-8 md:w-10 md:h-10">
+        <Avatar className="w-8 h-8 md:w-10 md:h-10 ring-2 ring-purple-500/30">
           <AvatarImage src={agent.avatar} />
-          <AvatarFallback className="bg-purple-200 text-xs">{agent.name[0]}</AvatarFallback>
+          <AvatarFallback className="bg-purple-500/20 text-purple-400 text-xs">{agent.name[0]}</AvatarFallback>
         </Avatar>
         {isActive && (
-          <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-            <Activity className="w-1.5 h-1.5 md:w-2 md:h-2 text-white" />
+          <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-neon-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
+            <Activity className="w-1.5 h-1.5 md:w-2 md:h-2 text-black" />
           </div>
         )}
       </div>
       <div className="min-w-0">
-        <h4 className="font-medium text-gray-900 text-sm md:text-base truncate">{agent.name}</h4>
+        <h4 className="font-medium text-white text-sm md:text-base truncate">{agent.name}</h4>
         <p className="text-[10px] md:text-xs text-gray-500">
-          {isActive ? 'Currently working' : 'Available'}
+          {isActive ? <span className="text-neon-400">Currently working</span> : 'Available'}
         </p>
       </div>
     </div>
   );
 };
 
-const VibeAIPanel = ({ onCardSelect }) => {
+const VibeAIPanel = ({ onCardSelect, cards = null }) => {
   const [selectedExecution, setSelectedExecution] = useState(mockExecutions[0]);
   
-  const aiTasks = mockCards.filter(card => card.source === 'ai');
+  // Use provided cards or fall back to mockCards
+  const allCards = cards || mockCards;
+  const aiTasks = allCards.filter(card => card.source === 'ai');
   const aiAgents = mockUsers.filter(user => user.isAI);
   const getExecution = (cardId) => mockExecutions.find(e => e.cardId === cardId);
   const activeExecutions = mockExecutions.filter(e => e.status === ExecutionStatus.RUNNING);
@@ -220,20 +222,20 @@ const VibeAIPanel = ({ onCardSelect }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-gray-950">
       {/* Header */}
-      <div className="p-3 md:p-4 border-b border-gray-200 bg-white">
+      <div className="p-3 md:p-4 border-b border-purple-500/20 bg-gray-900">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1 md:p-1.5 bg-purple-100 rounded-lg">
-              <Bot className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+            <div className="p-1 md:p-1.5 bg-purple-500/20 rounded-lg border border-purple-500/30">
+              <Bot className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900 text-sm md:text-base">AI Vibe Board</h2>
+              <h2 className="font-semibold text-white text-sm md:text-base">AI Vibe Board</h2>
               <p className="text-[10px] md:text-xs text-gray-500">Agent task execution view</p>
             </div>
           </div>
-          <Badge className="bg-purple-100 text-purple-700 text-[10px] md:text-xs">
+          <Badge className="bg-purple-500/20 text-purple-400 text-[10px] md:text-xs border border-purple-500/30">
             <Zap className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" />
             {activeExecutions.length} Active
           </Badge>
@@ -241,23 +243,23 @@ const VibeAIPanel = ({ onCardSelect }) => {
         
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="p-1.5 md:p-2 bg-blue-50 rounded-lg text-center">
-            <div className="text-base md:text-lg font-semibold text-blue-700">{activeExecutions.length}</div>
-            <div className="text-[8px] md:text-[10px] text-blue-600">Running</div>
+          <div className="p-1.5 md:p-2 bg-blue-500/10 rounded-lg text-center border border-blue-500/20">
+            <div className="text-base md:text-lg font-semibold text-blue-400">{activeExecutions.length}</div>
+            <div className="text-[8px] md:text-[10px] text-blue-400/70">Running</div>
           </div>
-          <div className="p-1.5 md:p-2 bg-green-50 rounded-lg text-center">
-            <div className="text-base md:text-lg font-semibold text-green-700">{completedToday}</div>
-            <div className="text-[8px] md:text-[10px] text-green-600">Completed</div>
+          <div className="p-1.5 md:p-2 bg-neon-500/10 rounded-lg text-center border border-neon-500/20">
+            <div className="text-base md:text-lg font-semibold text-neon-400">{completedToday}</div>
+            <div className="text-[8px] md:text-[10px] text-neon-400/70">Completed</div>
           </div>
-          <div className="p-1.5 md:p-2 bg-purple-50 rounded-lg text-center">
-            <div className="text-base md:text-lg font-semibold text-purple-700">{aiTasks.length}</div>
-            <div className="text-[8px] md:text-[10px] text-purple-600">Total Tasks</div>
+          <div className="p-1.5 md:p-2 bg-purple-500/10 rounded-lg text-center border border-purple-500/20">
+            <div className="text-base md:text-lg font-semibold text-purple-400">{aiTasks.length}</div>
+            <div className="text-[8px] md:text-[10px] text-purple-400/70">Total Tasks</div>
           </div>
         </div>
       </div>
 
       {/* Agent Profiles */}
-      <div className="p-3 md:p-4 border-b border-gray-200">
+      <div className="p-3 md:p-4 border-b border-gray-800">
         <h3 className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase mb-2">AI Agents</h3>
         <div className="space-y-2">
           {aiAgents.map(agent => (
@@ -272,7 +274,7 @@ const VibeAIPanel = ({ onCardSelect }) => {
 
       {/* Task Queue */}
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-        <div className="p-3 md:p-4 border-b border-gray-200 flex-shrink-0">
+        <div className="p-3 md:p-4 border-b border-gray-800 flex-shrink-0">
           <h3 className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase">Task Queue</h3>
         </div>
         <ScrollArea className="flex-1 p-3 md:p-4">
@@ -292,11 +294,11 @@ const VibeAIPanel = ({ onCardSelect }) => {
 
       {/* Execution Details */}
       {selectedExecution && (
-        <div className="p-3 md:p-4 border-t border-gray-200 bg-white flex-shrink-0">
+        <div className="p-3 md:p-4 border-t border-gray-800 bg-gray-900 flex-shrink-0">
           <div className="flex items-center justify-between mb-2 md:mb-3">
             <h3 className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase">Execution Details</h3>
             {selectedExecution.filesChanged && (
-              <Badge variant="outline" className="text-[10px] md:text-xs gap-1">
+              <Badge variant="outline" className="text-[10px] md:text-xs gap-1 border-gray-700 text-gray-400">
                 <FileCode className="w-2.5 h-2.5 md:w-3 md:h-3" />
                 {selectedExecution.filesChanged} files
               </Badge>
@@ -307,15 +309,15 @@ const VibeAIPanel = ({ onCardSelect }) => {
           {/* Action Buttons */}
           <div className="flex gap-2 mt-2 md:mt-3">
             {selectedExecution.status === ExecutionStatus.RUNNING ? (
-              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs h-8">
+              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs h-8 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10">
                 <Pause className="w-3 h-3" /> Pause
               </Button>
             ) : (
-              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs h-8">
+              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs h-8 border-neon-500/30 text-neon-400 hover:bg-neon-500/10">
                 <Play className="w-3 h-3" /> Resume
               </Button>
             )}
-            <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs h-8">
+            <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs h-8 border-gray-700 text-gray-400 hover:bg-gray-800">
               <MessageSquare className="w-3 h-3" /> <span className="hidden sm:inline">View</span> Details
             </Button>
           </div>

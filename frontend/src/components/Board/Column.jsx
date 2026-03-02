@@ -28,30 +28,30 @@ const Column = ({ column, cards, onCardClick, onAddCard, onDragStart, onDragEnd,
 
   return (
     <div
-      className="flex flex-col bg-lime-50/60 rounded-xl min-w-[260px] md:min-w-[300px] max-w-[260px] md:max-w-[300px] h-fit max-h-[calc(100vh-220px)] md:max-h-[calc(100vh-200px)] flex-shrink-0 border border-lime-100"
+      className="flex flex-col bg-gray-900/60 rounded-xl min-w-[260px] md:min-w-[300px] max-w-[260px] md:max-w-[300px] h-fit max-h-[calc(100vh-220px)] md:max-h-[calc(100vh-200px)] flex-shrink-0 border border-neon-500/20"
       onDragOver={(e) => { e.preventDefault(); onDragOver?.(column.id); }}
       onDrop={(e) => { e.preventDefault(); onDrop?.(column.id); }}
     >
       {/* Column Header */}
-      <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-lime-100">
+      <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-neon-500/20">
         <div className="flex items-center gap-2">
-          <h2 className="text-xs md:text-sm font-semibold text-lime-800 uppercase tracking-wide">
+          <h2 className="text-xs md:text-sm font-semibold text-neon-400 uppercase tracking-wide">
             {column.name}
           </h2>
-          <span className="bg-lime-200 text-lime-700 text-[10px] md:text-xs font-semibold px-1.5 md:px-2 py-0.5 rounded-full">
+          <span className="bg-neon-500/20 text-neon-400 text-[10px] md:text-xs font-semibold px-1.5 md:px-2 py-0.5 rounded-full">
             {cards.length}
           </span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-6 w-6 md:h-7 md:w-7 text-lime-600 hover:bg-lime-100">
+            <Button variant="ghost" size="icon" className="h-6 w-6 md:h-7 md:w-7 text-neon-500/70 hover:bg-neon-500/10 hover:text-neon-400">
               <MoreHorizontal className="h-3.5 w-3.5 md:h-4 md:w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Sort by date</DropdownMenuItem>
-            <DropdownMenuItem>Sort by priority</DropdownMenuItem>
-            <DropdownMenuItem>Archive all</DropdownMenuItem>
+          <DropdownMenuContent align="end" className="bg-gray-900 border-neon-500/30">
+            <DropdownMenuItem className="text-gray-300 hover:text-neon-400 hover:bg-neon-500/10">Sort by date</DropdownMenuItem>
+            <DropdownMenuItem className="text-gray-300 hover:text-neon-400 hover:bg-neon-500/10">Sort by priority</DropdownMenuItem>
+            <DropdownMenuItem className="text-gray-300 hover:text-neon-400 hover:bg-neon-500/10">Archive all</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -60,21 +60,21 @@ const Column = ({ column, cards, onCardClick, onAddCard, onDragStart, onDragEnd,
       <div className="flex-1 overflow-y-auto p-2 md:p-3 space-y-2 md:space-y-3">
         {/* Add Card Form */}
         {isAddingCard ? (
-          <div className="bg-white rounded-lg border border-lime-300 p-2 md:p-3 shadow-sm">
+          <div className="bg-gray-800 rounded-lg border border-neon-500/30 p-2 md:p-3 shadow-lg shadow-neon-500/5">
             <textarea
               autoFocus
               value={newCardTitle}
               onChange={(e) => setNewCardTitle(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="What needs to be done? 🍐"
-              className="w-full text-sm resize-none border-0 focus:ring-0 focus:outline-none placeholder:text-lime-400"
+              className="w-full text-sm resize-none border-0 focus:ring-0 focus:outline-none placeholder:text-neon-500/40 bg-transparent text-white"
               rows={2}
             />
             <div className="flex items-center gap-2 mt-2">
-              <Button size="sm" onClick={handleAddCard} className="bg-lime-500 hover:bg-lime-600 text-white text-xs h-7 md:h-8">
+              <Button size="sm" onClick={handleAddCard} className="bg-neon-500 hover:bg-neon-600 text-black text-xs h-7 md:h-8">
                 Add pear
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => { setIsAddingCard(false); setNewCardTitle(''); }} className="text-xs h-7 md:h-8 text-lime-600">
+              <Button size="sm" variant="ghost" onClick={() => { setIsAddingCard(false); setNewCardTitle(''); }} className="text-xs h-7 md:h-8 text-gray-400 hover:text-neon-400">
                 Cancel
               </Button>
             </div>
@@ -82,7 +82,7 @@ const Column = ({ column, cards, onCardClick, onAddCard, onDragStart, onDragEnd,
         ) : (
           <button
             onClick={() => setIsAddingCard(true)}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 border-dashed border-lime-300 text-lime-500 hover:border-lime-400 hover:text-lime-600 hover:bg-lime-50 transition-colors text-xs md:text-sm font-medium"
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 border-dashed border-neon-500/30 text-neon-500/70 hover:border-neon-500/50 hover:text-neon-400 hover:bg-neon-500/5 transition-colors text-xs md:text-sm font-medium"
           >
             <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
             Add a pear 🍐

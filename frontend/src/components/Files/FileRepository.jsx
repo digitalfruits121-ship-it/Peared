@@ -98,7 +98,7 @@ const mockFiles = [
     id: 'file-4',
     name: 'auth-flow.png',
     type: 'image',
-    content: 'https://via.placeholder.com/800x400/e0e7ff/6366f1?text=Authentication+Flow+Diagram',
+    content: 'https://via.placeholder.com/800x400/1a1a2e/39FF14?text=Authentication+Flow+Diagram',
     size: 24500,
     linkedCards: ['card-3001'],
     scope: 'task',
@@ -143,15 +143,15 @@ const fileTypeIcons = {
 };
 
 const fileTypeColors = {
-  markdown: 'text-blue-500',
-  json: 'text-yellow-500',
-  code: 'text-green-500',
-  image: 'text-purple-500',
+  markdown: 'text-blue-400',
+  json: 'text-yellow-400',
+  code: 'text-neon-400',
+  image: 'text-purple-400',
 };
 
 const FileItem = ({ file, isSelected, onClick, onDelete, onLink, viewMode }) => {
   const Icon = fileTypeIcons[file.type] || FileText;
-  const colorClass = fileTypeColors[file.type] || 'text-gray-500';
+  const colorClass = fileTypeColors[file.type] || 'text-gray-400';
   const isAICreated = file.createdBy?.startsWith('ai-');
 
   if (viewMode === 'compact') {
@@ -160,12 +160,12 @@ const FileItem = ({ file, isSelected, onClick, onDelete, onLink, viewMode }) => 
         onClick={() => onClick(file)}
         className={`
           flex items-center gap-2 p-2 rounded cursor-pointer transition-all text-sm
-          ${isSelected ? 'bg-purple-100 border-purple-300' : 'hover:bg-gray-100'}
+          ${isSelected ? 'bg-purple-500/20 border-purple-500/50' : 'hover:bg-gray-800'}
         `}
       >
         <Icon className={`w-4 h-4 ${colorClass}`} />
-        <span className="truncate flex-1">{file.name}</span>
-        {isAICreated && <Bot className="w-3 h-3 text-purple-500" />}
+        <span className="truncate flex-1 text-gray-300">{file.name}</span>
+        {isAICreated && <Bot className="w-3 h-3 text-purple-400" />}
       </div>
     );
   }
@@ -175,14 +175,14 @@ const FileItem = ({ file, isSelected, onClick, onDelete, onLink, viewMode }) => 
       onClick={() => onClick(file)}
       className={`
         p-3 rounded-lg border cursor-pointer transition-all
-        ${isSelected ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-purple-200 bg-white'}
+        ${isSelected ? 'border-amber-500/50 bg-amber-500/10' : 'border-gray-700 hover:border-amber-500/30 bg-gray-800/50'}
       `}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <Icon className={`w-5 h-5 ${colorClass}`} />
           <div>
-            <h4 className="font-medium text-sm text-gray-900">{file.name}</h4>
+            <h4 className="font-medium text-sm text-white">{file.name}</h4>
             <p className="text-xs text-gray-500">
               {(file.size / 1024).toFixed(1)} KB
             </p>
@@ -190,23 +190,23 @@ const FileItem = ({ file, isSelected, onClick, onDelete, onLink, viewMode }) => 
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-amber-400">
               <MoreVertical className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onClick(file); }}>
+          <DropdownMenuContent align="end" className="bg-gray-900 border-amber-500/30">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onClick(file); }} className="text-gray-300 hover:text-amber-400">
               <Eye className="w-4 h-4 mr-2" /> View
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onLink?.(file); }}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onLink?.(file); }} className="text-gray-300 hover:text-amber-400">
               <Link className="w-4 h-4 mr-2" /> Link to Card
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="text-gray-300 hover:text-amber-400">
               <Download className="w-4 h-4 mr-2" /> Download
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-gray-700" />
             <DropdownMenuItem
-              className="text-red-600"
+              className="text-red-400 hover:bg-red-500/10"
               onClick={(e) => { e.stopPropagation(); onDelete?.(file.id); }}
             >
               <Trash2 className="w-4 h-4 mr-2" /> Delete
@@ -216,23 +216,23 @@ const FileItem = ({ file, isSelected, onClick, onDelete, onLink, viewMode }) => 
       </div>
       <div className="mt-2 flex items-center gap-2">
         {file.scope === 'project' && (
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[10px] border-gray-600 text-gray-400">
             Project
           </Badge>
         )}
         {file.scope === 'task' && (
-          <Badge variant="outline" className="text-[10px] bg-blue-50">
+          <Badge variant="outline" className="text-[10px] bg-blue-500/10 border-blue-500/30 text-blue-400">
             Task
           </Badge>
         )}
         {file.linkedCards?.length > 0 && (
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[10px] border-gray-600 text-gray-400">
             <Link className="w-2.5 h-2.5 mr-1" />
             {file.linkedCards.length}
           </Badge>
         )}
         {isAICreated && (
-          <Badge className="bg-purple-100 text-purple-700 text-[10px]">
+          <Badge className="bg-purple-500/20 text-purple-400 text-[10px] border border-purple-500/30">
             <Bot className="w-2.5 h-2.5 mr-1" /> AI
           </Badge>
         )}
@@ -248,9 +248,9 @@ const FileViewer = ({ file, onEdit, onClose }) => {
 
   if (!file) {
     return (
-      <div className="h-full flex items-center justify-center text-gray-400">
+      <div className="h-full flex items-center justify-center text-gray-500">
         <div className="text-center">
-          <FolderOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <FolderOpen className="w-12 h-12 mx-auto mb-2 opacity-50 text-amber-500/50" />
           <p>Select a file to view</p>
         </div>
       </div>
@@ -275,7 +275,7 @@ const FileViewer = ({ file, onEdit, onClose }) => {
           <img
             src={file.content}
             alt={file.name}
-            className="max-w-full max-h-[400px] rounded-lg shadow-lg"
+            className="max-w-full max-h-[400px] rounded-lg shadow-lg border border-gray-700"
           />
         </div>
       );
@@ -286,14 +286,14 @@ const FileViewer = ({ file, onEdit, onClose }) => {
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="font-mono text-sm h-[400px] resize-none"
+          className="font-mono text-sm h-[400px] resize-none bg-gray-800 border-neon-500/30 text-white"
         />
       );
     }
 
     return (
       <ScrollArea className="h-[400px]">
-        <pre className="p-4 bg-gray-50 rounded-lg text-sm font-mono whitespace-pre-wrap">
+        <pre className="p-4 bg-gray-950 rounded-lg text-sm font-mono whitespace-pre-wrap text-gray-300 border border-gray-800">
           {content}
         </pre>
       </ScrollArea>
@@ -301,29 +301,30 @@ const FileViewer = ({ file, onEdit, onClose }) => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-gray-900">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200">
+      <div className="flex items-center justify-between p-3 border-b border-gray-700">
         <div className="flex items-center gap-2">
           {React.createElement(fileTypeIcons[file.type] || FileText, {
             className: `w-5 h-5 ${fileTypeColors[file.type]}`
           })}
-          <h3 className="font-medium">{file.name}</h3>
+          <h3 className="font-medium text-white">{file.name}</h3>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={handleCopy}>
-            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Clipboard className="w-4 h-4" />}
+          <Button variant="ghost" size="sm" onClick={handleCopy} className="text-gray-400 hover:text-neon-400">
+            {copied ? <Check className="w-4 h-4 text-neon-400" /> : <Clipboard className="w-4 h-4" />}
           </Button>
           {file.type !== 'image' && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsEditing(!isEditing)}
+              className="text-gray-400 hover:text-neon-400"
             >
               <Edit className="w-4 h-4" />
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-red-400">
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -336,11 +337,11 @@ const FileViewer = ({ file, onEdit, onClose }) => {
 
       {/* Footer */}
       {isEditing && (
-        <div className="p-3 border-t border-gray-200 flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+        <div className="p-3 border-t border-gray-700 flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} className="border-gray-600 text-gray-400">
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave} className="bg-teal-500 hover:bg-teal-600">
+          <Button size="sm" onClick={handleSave} className="bg-neon-500 hover:bg-neon-600 text-black">
             Save Changes
           </Button>
         </div>
@@ -372,28 +373,28 @@ const CreateFileDialog = ({ onClose, onCreate }) => {
   };
 
   return (
-    <DialogContent className="max-w-lg">
+    <DialogContent className="max-w-lg bg-gray-900 border-amber-500/30">
       <DialogHeader>
-        <DialogTitle>Create New File</DialogTitle>
+        <DialogTitle className="text-amber-400">Create New File</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 mt-4">
         <div>
-          <label className="text-sm font-medium">File Name</label>
+          <label className="text-sm font-medium text-gray-300">File Name</label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., instruct.md or config.json"
-            className="mt-1"
+            className="mt-1 bg-gray-800 border-amber-500/30 text-white"
           />
         </div>
         <div>
-          <label className="text-sm font-medium">File Type</label>
+          <label className="text-sm font-medium text-gray-300">File Type</label>
           <div className="flex gap-2 mt-1">
             <Button
               variant={type === 'markdown' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setType('markdown')}
-              className="gap-2"
+              className={`gap-2 ${type === 'markdown' ? 'bg-amber-500 text-black' : 'border-amber-500/30 text-amber-400'}`}
             >
               <FileText className="w-4 h-4" /> Markdown
             </Button>
@@ -401,19 +402,20 @@ const CreateFileDialog = ({ onClose, onCreate }) => {
               variant={type === 'json' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setType('json')}
-              className="gap-2"
+              className={`gap-2 ${type === 'json' ? 'bg-amber-500 text-black' : 'border-amber-500/30 text-amber-400'}`}
             >
               <FileJson className="w-4 h-4" /> JSON
             </Button>
           </div>
         </div>
         <div>
-          <label className="text-sm font-medium">Scope</label>
+          <label className="text-sm font-medium text-gray-300">Scope</label>
           <div className="flex gap-2 mt-1">
             <Button
               variant={scope === 'project' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setScope('project')}
+              className={scope === 'project' ? 'bg-amber-500 text-black' : 'border-gray-600 text-gray-400'}
             >
               Project-wide
             </Button>
@@ -421,23 +423,24 @@ const CreateFileDialog = ({ onClose, onCreate }) => {
               variant={scope === 'task' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setScope('task')}
+              className={scope === 'task' ? 'bg-amber-500 text-black' : 'border-gray-600 text-gray-400'}
             >
               Task-specific
             </Button>
           </div>
         </div>
         <div>
-          <label className="text-sm font-medium">Initial Content (optional)</label>
+          <label className="text-sm font-medium text-gray-300">Initial Content (optional)</label>
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={templates[type]}
-            className="mt-1 font-mono text-sm h-32"
+            className="mt-1 font-mono text-sm h-32 bg-gray-800 border-amber-500/30 text-white"
           />
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleCreate} className="bg-teal-500 hover:bg-teal-600">
+          <Button variant="outline" onClick={onClose} className="border-gray-600 text-gray-400">Cancel</Button>
+          <Button onClick={handleCreate} className="bg-amber-500 hover:bg-amber-600 text-black">
             Create File
           </Button>
         </div>
@@ -529,15 +532,15 @@ const FileRepository = ({ cardId = null, viewMode = 'full' }) => {
 
   if (viewMode === 'compact') {
     return (
-      <div className="h-full flex flex-col">
-        <div className="p-2 border-b border-gray-200">
+      <div className="h-full flex flex-col bg-gray-900">
+        <div className="p-2 border-b border-gray-700">
           <div className="relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search files..."
-              className="pl-7 h-8 text-sm"
+              className="pl-7 h-8 text-sm bg-gray-800 border-gray-700 text-white"
             />
           </div>
         </div>
@@ -559,13 +562,13 @@ const FileRepository = ({ cardId = null, viewMode = 'full' }) => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-gray-900">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-amber-500/20">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <FolderOpen className="w-5 h-5 text-teal-600" />
-            <h2 className="font-semibold text-gray-900">File Repository</h2>
+            <FolderOpen className="w-5 h-5 text-amber-400" />
+            <h2 className="font-semibold text-white">File Repository</h2>
           </div>
           <div className="flex items-center gap-2">
             <input
@@ -579,13 +582,13 @@ const FileRepository = ({ cardId = null, viewMode = 'full' }) => {
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              className="gap-1"
+              className="gap-1 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
             >
               <Upload className="w-4 h-4" /> Upload
             </Button>
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
-                <Button size="sm" className="gap-1 bg-teal-500 hover:bg-teal-600">
+                <Button size="sm" className="gap-1 bg-amber-500 hover:bg-amber-600 text-black">
                   <Plus className="w-4 h-4" /> New File
                 </Button>
               </DialogTrigger>
@@ -599,12 +602,12 @@ const FileRepository = ({ cardId = null, viewMode = 'full' }) => {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search files..."
-            className="pl-9"
+            className="pl-9 bg-gray-800 border-amber-500/30 text-white placeholder:text-gray-500"
           />
         </div>
       </div>
@@ -612,11 +615,11 @@ const FileRepository = ({ cardId = null, viewMode = 'full' }) => {
       {/* Tabs */}
       <div className="px-4 pt-2">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full justify-start bg-gray-100">
-            <TabsTrigger value="all" className="text-xs">All Files</TabsTrigger>
-            <TabsTrigger value="project" className="text-xs">Project</TabsTrigger>
-            <TabsTrigger value="task" className="text-xs">Task</TabsTrigger>
-            {cardId && <TabsTrigger value="linked" className="text-xs">Linked</TabsTrigger>}
+          <TabsList className="w-full justify-start bg-gray-800 border border-amber-500/20">
+            <TabsTrigger value="all" className="text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-black text-gray-400">All Files</TabsTrigger>
+            <TabsTrigger value="project" className="text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-black text-gray-400">Project</TabsTrigger>
+            <TabsTrigger value="task" className="text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-black text-gray-400">Task</TabsTrigger>
+            {cardId && <TabsTrigger value="linked" className="text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-black text-gray-400">Linked</TabsTrigger>}
           </TabsList>
         </Tabs>
       </div>
@@ -624,7 +627,7 @@ const FileRepository = ({ cardId = null, viewMode = 'full' }) => {
       {/* Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* File List */}
-        <div className="w-1/2 border-r border-gray-200 overflow-hidden flex flex-col">
+        <div className="w-1/2 border-r border-gray-700 overflow-hidden flex flex-col">
           <ScrollArea className="flex-1 p-3">
             <div className="space-y-2">
               {filteredFiles.map(file => (
@@ -637,7 +640,7 @@ const FileRepository = ({ cardId = null, viewMode = 'full' }) => {
                 />
               ))}
               {filteredFiles.length === 0 && (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-gray-500">
                   <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No files found</p>
                 </div>

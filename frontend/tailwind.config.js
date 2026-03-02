@@ -13,6 +13,26 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			// Neon AI Green color palette for Pears 🍐
+  			neon: {
+  				50: '#f0fff4',
+  				100: '#dcfce7',
+  				200: '#bbf7d0',
+  				300: '#86efac',
+  				400: '#4ade80',
+  				500: '#39FF14', // Primary neon green
+  				600: '#00E676',
+  				700: '#00C853',
+  				800: '#1B5E20',
+  				900: '#0A3D0A',
+  				950: '#052005',
+  			},
+  			pear: {
+  				light: '#7CFF00',
+  				DEFAULT: '#39FF14',
+  				dark: '#00C853',
+  				glow: 'rgba(57, 255, 20, 0.3)',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
